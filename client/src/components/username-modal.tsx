@@ -47,19 +47,19 @@ export default function UsernameModal({ isOpen, onSubmit }: UsernameModalProps) 
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" data-testid="text-username-title">
-            Enter ChatKOOL
+            🎉 Enter ChatKOOL
           </DialogTitle>
           <p className="text-gray-600 leading-relaxed" data-testid="text-username-description">
-            Choose a username to start chatting with fellow Filipino students
+            🎓 Choose a username to start chatting with fellow Filipino students
           </p>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6" data-testid="form-username">
           <div className="space-y-3">
-            <Label htmlFor="username" className="text-gray-700 font-medium">Username</Label>
+            <Label htmlFor="username" className="text-gray-700 font-medium">👤 Username</Label>
             <Input
               id="username"
-              placeholder="Enter your username"
+              placeholder="✨ Enter your username"
               {...form.register("username")}
               className="border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors h-12"
               data-testid="input-username"
@@ -72,7 +72,7 @@ export default function UsernameModal({ isOpen, onSubmit }: UsernameModalProps) 
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="university" className="text-gray-700 font-medium">University (Optional)</Label>
+            <Label htmlFor="university" className="text-gray-700 font-medium">🎓 University (Optional)</Label>
             <Select onValueChange={(value) => form.setValue("university", value)} data-testid="select-university">
               <SelectTrigger className="border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors h-12">
                 <SelectValue placeholder="Select your university" />
@@ -92,11 +92,11 @@ export default function UsernameModal({ isOpen, onSubmit }: UsernameModalProps) 
             className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white border-0 rounded-xl h-12 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
             data-testid="button-enter-chat"
           >
-            Enter Chat
+            🚀 Enter Chat
           </Button>
 
           <p className="text-xs text-gray-500 text-center leading-relaxed">
-            By entering, you confirm you're 18+ and agree to our community guidelines
+            🔒 By entering, you confirm you're 18+ and agree to our community guidelines
           </p>
         </form>
       </DialogContent>
