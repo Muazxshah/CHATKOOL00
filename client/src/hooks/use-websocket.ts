@@ -93,7 +93,7 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
     return () => {
       ws.close();
     };
-  }, [username, onMatchFound]);
+  }, [username]); // Remove onMatchFound from dependencies to prevent reconnections
 
   // Join room when roomId changes
   useEffect(() => {

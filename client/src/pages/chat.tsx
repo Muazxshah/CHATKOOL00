@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ChatMessages from "@/components/chat-messages";
 import MessageInput from "@/components/message-input";
@@ -12,19 +12,24 @@ export default function Chat() {
   const [currentRoom, setCurrentRoom] = useState<ChatRoom | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [matchedUser, setMatchedUser] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [isLookingForMatch, setIsLookingForMatch] = useState(false);
   const queryClient = useQueryClient();
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMatchFound = useCallback((match: { room: any; matchedUser: string }) => {
+    console.log('Match found via WebSocket!', match);
+    setCurrentRoom(match.room);
+    setIsLookingForMatch(false);
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  }, []);
 
   const { messages, sendMessage, isConnected } = useWebSocket(
     currentRoom?.id || undefined, 
     username || undefined,
-    (match) => {
-      console.log('Match found via WebSocket!', match);
-      setCurrentRoom(match.room);
-      setIsLookingForMatch(false);
-      clearInterval(pollIntervalRef.current);
-    }
+    handleMatchFound
   );
 
   const randomChatMutation = useMutation({
@@ -37,7 +42,7 @@ export default function Chat() {
       if (data.matched) {
         setCurrentRoom(data.room);
         setMatchedUser(data.matchedUser);
-        setIsSearching(false);
+        setIsLookingForMatch(false);
         // Clear any existing polling
         if (pollIntervalRef.current) {
           clearInterval(pollIntervalRef.current);
@@ -51,7 +56,7 @@ export default function Chat() {
     },
     onError: (error) => {
       console.error('Random chat error:', error);
-      setIsSearching(false);
+      setIsLookingForMatch(false);
     }
   });
 
@@ -74,7 +79,7 @@ export default function Chat() {
           console.log('Match found!', response);
           setCurrentRoom(response.room);
           setMatchedUser(response.matchedUser);
-          setIsSearching(false);
+          setIsLookingForMatch(false);
           if (pollIntervalRef.current) {
             clearInterval(pollIntervalRef.current);
             pollIntervalRef.current = null;
@@ -92,7 +97,7 @@ export default function Chat() {
         clearInterval(pollIntervalRef.current);
         pollIntervalRef.current = null;
       }
-      setIsSearching(false);
+      setIsLookingForMatch(false);
     }, 60000);
   };
 
@@ -106,7 +111,7 @@ export default function Chat() {
 
   const startRandomChat = () => {
     if (username) {
-      setIsSearching(true);
+      setIsLookingForMatch(true);
       randomChatMutation.mutate(username);
     }
   };
@@ -118,7 +123,7 @@ export default function Chat() {
     }
     setCurrentRoom(null);
     setMatchedUser(null);
-    setIsSearching(false);
+    setIsLookingForMatch(false);
   };
 
   // Check if user already has a stored username
@@ -182,7 +187,7 @@ export default function Chat() {
       ) : (
         <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
           <div className="text-center p-8 max-w-md">
-            {isSearching ? (
+            {isLookingForMatch ? (
               <>
                 <div className="w-16 h-16 bg-primary-blue rounded-full flex items-center justify-center mb-6 mx-auto animate-pulse">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +215,7 @@ export default function Chat() {
                   onClick={startRandomChat} 
                   className="bg-gradient-to-r from-primary-blue to-accent-purple hover:from-blue-600 hover:to-purple-600 px-8 py-3 text-lg font-semibold"
                   data-testid="button-start-random-chat"
-                  disabled={isSearching}
+                  disabled={isLookingForMatch}
                 >
                   Start Random Chat
                 </Button>
