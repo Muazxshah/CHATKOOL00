@@ -20,7 +20,8 @@ export default function Chat() {
 
   const randomChatMutation = useMutation({
     mutationFn: async (username: string) => {
-      return await apiRequest('/api/random-chat', 'POST', { username });
+      const res = await apiRequest('POST', '/api/random-chat', { username });
+      return await res.json();
     },
     onSuccess: (data: any) => {
       console.log('Random chat response:', data);
@@ -56,7 +57,8 @@ export default function Chat() {
     pollIntervalRef.current = setInterval(async () => {
       try {
         console.log('Polling for match...');
-        const response = await apiRequest('/api/random-chat', 'POST', { username }) as any;
+        const res = await apiRequest('POST', '/api/random-chat', { username });
+        const response = await res.json() as any;
         console.log('Poll response:', response);
         
         if (response.matched) {
