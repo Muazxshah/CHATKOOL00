@@ -13,8 +13,11 @@ export default function MessageInput({ onSendMessage, placeholder = "Type a mess
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    console.log('Form submitted:', message);
     if (message.trim()) {
-      onSendMessage(message);
+      console.log('Sending message:', message.trim());
+      onSendMessage(message.trim());
       setMessage("");
     }
   };
@@ -34,6 +37,12 @@ export default function MessageInput({ onSendMessage, placeholder = "Type a mess
           disabled={!message.trim()}
           className="bg-primary-blue hover:bg-blue-600"
           data-testid="button-send-message"
+          onClick={(e) => {
+            if (!message.trim()) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }}
         >
           <Send size={16} />
         </Button>
