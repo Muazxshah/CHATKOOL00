@@ -16,7 +16,16 @@ export default function Chat() {
   const queryClient = useQueryClient();
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { messages, sendMessage, isConnected } = useWebSocket(currentRoom?.id || undefined, username || undefined);
+  const { messages, sendMessage, isConnected } = useWebSocket(
+    currentRoom?.id || undefined, 
+    username || undefined,
+    (match) => {
+      console.log('Match found via WebSocket!', match);
+      setCurrentRoom(match.room);
+      setIsLookingForMatch(false);
+      clearInterval(pollIntervalRef.current);
+    }
+  );
 
   const randomChatMutation = useMutation({
     mutationFn: async (username: string) => {

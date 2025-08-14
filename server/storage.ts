@@ -25,7 +25,7 @@ export interface IStorage {
   addOnlineUser(username: string): Promise<void>;
   removeOnlineUser(username: string): Promise<void>;
   getOnlineUsers(): Promise<string[]>;
-  findRandomMatch(currentUser: string): Promise<string | null>;
+  findRandomMatch(currentUser: string): Promise<{ matchedUser: string; room: ChatRoom } | null>;
   createDirectRoom(user1: string, user2: string): Promise<ChatRoom>;
 }
 
@@ -139,9 +139,8 @@ export class MemStorage implements IStorage {
     return Array.from(this.onlineUsers);
   }
 
-  async findRandomMatch(currentUser: string): Promise<string | null> {
-    // Add current user to waiting list
-    this.waitingForMatch.add(currentUser);
+  async findRandomMatch(currentUser: string): Promise<{ matchedUser: string; room: ChatRoom } | null> {
+    console.log(`Finding match for ${currentUser}, waiting list:`, Array.from(this.waitingForMatch));
     
     // Find another user who is waiting (excluding current user)
     const availableUsers = Array.from(this.waitingForMatch).filter(user => user !== currentUser);
@@ -151,12 +150,21 @@ export class MemStorage implements IStorage {
       const randomIndex = Math.floor(Math.random() * availableUsers.length);
       const matchedUser = availableUsers[randomIndex];
       
+      console.log(`Match found: ${currentUser} <-> ${matchedUser}`);
+      
       // Remove both users from waiting list
       this.waitingForMatch.delete(currentUser);
       this.waitingForMatch.delete(matchedUser);
       
-      return matchedUser;
+      // Create room immediately for the match
+      const room = await this.createDirectRoom(currentUser, matchedUser);
+      
+      return { matchedUser, room };
     }
+    
+    // Add current user to waiting list only if no match found
+    this.waitingForMatch.add(currentUser);
+    console.log(`No match for ${currentUser}, added to waiting list`);
     
     return null; // No match found, user stays in waiting list
   }

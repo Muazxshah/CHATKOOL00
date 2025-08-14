@@ -7,7 +7,11 @@ import { insertMessageSchema, userEntrySchema } from "@shared/schema";
 interface ChatWebSocket extends WebSocket {
   username?: string;
   roomId?: string;
+  userId?: string;
 }
+
+// Store active WebSocket connections by username
+const activeConnections = new Map<string, ChatWebSocket>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all chat rooms - no authentication required
@@ -39,15 +43,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username required" });
       }
 
-      const matchedUser = await storage.findRandomMatch(username);
-      if (matchedUser) {
-        // Create a direct chat room
-        const room = await storage.createDirectRoom(username, matchedUser);
+      const matchResult = await storage.findRandomMatch(username);
+      if (matchResult) {
+        const { matchedUser, room } = matchResult;
+        console.log(`Created room for ${username} and ${matchedUser}: ${room.id}`);
+        
+        // Notify both users via WebSocket if they're connected
+        const currentUserWs = activeConnections.get(username);
+        const matchedUserWs = activeConnections.get(matchedUser);
+        
+        if (currentUserWs) {
+          currentUserWs.send(JSON.stringify({
+            type: 'match_found',
+            room,
+            matchedUser
+          }));
+        }
+        
+        if (matchedUserWs) {
+          matchedUserWs.send(JSON.stringify({
+            type: 'match_found',
+            room,
+            matchedUser: username
+          }));
+        }
+        
         res.json({ matched: true, room, matchedUser });
       } else {
         res.json({ matched: false, message: "Waiting for another user..." });
       }
     } catch (error) {
+      console.error('Random chat error:', error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -69,6 +95,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const userData = userEntrySchema.parse(message);
             ws.username = userData.username;
+            
+            // Store connection for notifications
+            activeConnections.set(userData.username, ws);
+            
             await storage.addOnlineUser(userData.username);
             ws.send(JSON.stringify({ type: 'username_set', username: userData.username }));
           } catch (error) {
@@ -120,6 +150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('WebSocket connection closed');
       if (ws.username) {
         await storage.removeOnlineUser(ws.username);
+        activeConnections.delete(ws.username);
       }
     });
   });

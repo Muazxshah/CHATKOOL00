@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { MessageWithUser } from "@shared/schema";
 
-export function useWebSocket(roomId?: string, username?: string) {
+export function useWebSocket(roomId?: string, username?: string, onMatchFound?: (match: { room: any; matchedUser: string }) => void) {
   const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
@@ -65,6 +65,13 @@ export function useWebSocket(roomId?: string, username?: string) {
           setMessages(prev => [...prev, data.message]);
           break;
           
+        case 'match_found':
+          console.log('Match found via WebSocket:', data);
+          if (onMatchFound) {
+            onMatchFound({ room: data.room, matchedUser: data.matchedUser });
+          }
+          break;
+          
         default:
           console.log('Unknown message type:', data.type);
       }
@@ -84,7 +91,7 @@ export function useWebSocket(roomId?: string, username?: string) {
     return () => {
       ws.close();
     };
-  }, [username]);
+  }, [username, onMatchFound]);
 
   // Join room when roomId changes
   useEffect(() => {
