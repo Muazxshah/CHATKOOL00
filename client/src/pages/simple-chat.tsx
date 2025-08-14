@@ -142,12 +142,12 @@ export default function SimpleChat() {
       {/* Premium Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.location.href = '/'}>
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-200">
               <span className="text-white font-bold text-lg">C</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900 text-lg">ChatKOOL</h1>
+              <h1 className="font-bold text-gray-900 text-lg hover:text-purple-600 transition-colors duration-200">ChatKOOL</h1>
               <p className="text-xs text-gray-500">Connect with students</p>
             </div>
           </div>
@@ -232,6 +232,13 @@ export default function SimpleChat() {
           {/* Message Input - Premium Compact */}
           <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-6 py-4 mx-4 mb-4 rounded-b-xl shadow-sm">
             <div className="flex space-x-3">
+              <Button 
+                onClick={startNewChat}
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-xl px-4"
+              >
+                End Chat
+              </Button>
               <Input
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
