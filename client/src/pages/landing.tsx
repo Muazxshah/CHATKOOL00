@@ -1,101 +1,106 @@
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { University, MessageCircle, Shield, Book, Hash, Search, Settings, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    document.title = "ChatKOOL - Anonymous Chat Platform for Filipino College Students | Connect Instantly";
+    
+    // Add meta description for SEO
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Join ChatKOOL - the premier anonymous chat platform connecting Filipino college and university students across the Philippines. No signup required, instant connections, 100% free.');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'description';
+      meta.content = 'Join ChatKOOL - the premier anonymous chat platform connecting Filipino college and university students across the Philippines. No signup required, instant connections, 100% free.';
+      document.head.appendChild(meta);
+    }
+  }, []);
 
   return (
-    <div className="font-inter bg-bg-light min-h-screen">
-      {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <img 
                 src="https://www.chatkool.com/static/media/mainlogo.680cdbd559a984017e33.png" 
-                alt="ChatKOOL Logo" 
+                alt="ChatKOOL Logo - Anonymous Chat for Filipino Students" 
                 className="h-8 w-auto"
+                data-testid="img-logo"
               />
-              <h1 className="text-xl font-bold text-dark-text">ChatKOOL</h1>
+              <h1 className="text-2xl font-black text-gray-900">ChatKOOL</h1>
             </div>
-            <div className="hidden md:flex items-center space-x-6">
-              <button 
-                onClick={() => scrollToSection('features')}
-                className="text-neutral-gray hover:text-primary-blue transition-colors"
-                data-testid="nav-features"
-              >
-                Features
-              </button>
-              <button 
-                onClick={() => scrollToSection('community')}
-                className="text-neutral-gray hover:text-primary-blue transition-colors"
-                data-testid="nav-community"
-              >
-                Community
-              </button>
-              <button 
-                onClick={() => scrollToSection('support')}
-                className="text-neutral-gray hover:text-primary-blue transition-colors"
-                data-testid="nav-support"
-              >
-                Support
-              </button>
-              <Button 
-                onClick={() => setLocation('/chat')}
-                className="bg-primary-blue text-white hover:bg-blue-600"
-                data-testid="button-join-nav"
-              >
-                Start Chatting
-              </Button>
-            </div>
+            <nav className="hidden md:flex space-x-8">
+              <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</a>
+              <a href="#how-it-works" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">How It Works</a>
+              <a href="#safety" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Safety</a>
+            </nav>
+            <Button 
+              onClick={() => setLocation('/chat')}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 font-bold"
+              data-testid="button-header-start-chat"
+            >
+              Start Chat
+            </Button>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-blue to-accent-purple py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-white">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight" data-testid="text-hero-title">
-                Connect with Filipino 
-                <span className="text-secondary-green"> College Students</span>
-              </h1>
-              <p className="text-xl mb-8 text-blue-100" data-testid="text-hero-description">
-                ChatKOOL is a special place just for college and university students in the Philippines. 
-                Connect, share experiences, and build friendships in our student community.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={() => setLocation('/chat')}
-                  className="bg-secondary-green text-white hover:bg-green-600 px-8 py-3 font-semibold"
-                  data-testid="button-start-chatting"
-                >
-                  Start Chatting
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => scrollToSection('features')}
-                  className="border-2 border-white text-white hover:bg-white hover:text-primary-blue px-8 py-3 font-semibold"
-                  data-testid="button-learn-more"
-                >
-                  Learn More
-                </Button>
-              </div>
+      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-32 pb-20 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center">
+            <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-8 leading-tight tracking-tight" data-testid="hero-title">
+              <span className="block">CHAT</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 animate-pulse">
+                KOOL
+              </span>
+            </h1>
+            <p className="text-2xl md:text-3xl text-blue-600 mb-6 font-bold tracking-wide" data-testid="hero-tagline">
+              ANONYMOUS FILIPINO STUDENT CHAT
+            </p>
+            <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed" data-testid="hero-description">
+              Connect instantly with fellow Filipino college and university students. Share experiences, get academic help, 
+              make friends, and engage in meaningful conversations. No registration required - completely anonymous and free.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+              <Button 
+                onClick={() => setLocation('/chat')}
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-16 py-6 text-2xl font-black rounded-full shadow-2xl transition-all duration-300 hover:shadow-orange-500/25 hover:scale-105"
+                data-testid="button-start-chatting"
+              >
+                🚀 START CHATTING NOW
+              </Button>
             </div>
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                alt="College students chatting together" 
-                className="rounded-2xl shadow-2xl w-full h-auto"
-                data-testid="img-hero"
-              />
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span>No signup required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span>100% Anonymous</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                <span>Instant connection</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                <span>Filipino students only</span>
+              </div>
             </div>
           </div>
         </div>
@@ -105,247 +110,194 @@ export default function Landing() {
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark-text mb-4" data-testid="text-features-title">
-              Why Choose ChatKOOL?
-            </h2>
-            <p className="text-xl text-neutral-gray max-w-2xl mx-auto" data-testid="text-features-description">
-              Built specifically for Filipino college students with features that matter to your academic journey.
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Filipino Students Choose ChatKOOL</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Join thousands of Filipino college students who trust ChatKOOL for authentic connections and meaningful conversations
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-bg-light rounded-2xl p-8 text-center hover:shadow-lg transition-shadow" data-testid="card-university-communities">
-              <div className="bg-primary-blue rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                <University className="text-white text-2xl" size={24} />
+            <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold text-dark-text mb-4">University Communities</h3>
-              <p className="text-neutral-gray">Connect with students from your university and discover new perspectives from other schools across the Philippines.</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">100% Anonymous</h3>
+              <p className="text-gray-600">
+                Chat freely without revealing your identity. Share your thoughts, experiences, and questions without judgment.
+              </p>
             </div>
 
-            <div className="bg-bg-light rounded-2xl p-8 text-center hover:shadow-lg transition-shadow" data-testid="card-realtime-chat">
-              <div className="bg-secondary-green rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                <MessageCircle className="text-white text-2xl" size={24} />
+            <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold text-dark-text mb-4">Real-time Chat</h3>
-              <p className="text-neutral-gray">Engage in meaningful conversations with instant messaging, study groups, and topic-based chat rooms.</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Instant Connections</h3>
+              <p className="text-gray-600">
+                Get matched with another Filipino college student in seconds. No waiting, no barriers, just instant conversations.
+              </p>
             </div>
 
-            <div className="bg-bg-light rounded-2xl p-8 text-center hover:shadow-lg transition-shadow" data-testid="card-safe-environment">
-              <div className="bg-accent-purple rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                <Shield className="text-white text-2xl" size={24} />
+            <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-lg transition-all duration-300">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold text-dark-text mb-4">Safe Environment</h3>
-              <p className="text-neutral-gray">Age-verified community with strong moderation to ensure a safe and respectful environment for all students.</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Filipino Student Community</h3>
+              <p className="text-gray-600">
+                Connect exclusively with fellow Filipino college and university students who understand your culture and experiences.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Chat Preview Section */}
-      <section className="py-20 bg-bg-light">
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark-text mb-4" data-testid="text-chat-preview-title">
-              Experience the Chat Interface
-            </h2>
-            <p className="text-xl text-neutral-gray max-w-2xl mx-auto" data-testid="text-chat-preview-description">
-              Clean, intuitive design that makes connecting with fellow students effortless.
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">How ChatKOOL Works</h2>
+            <p className="text-xl text-gray-600">
+              Get started in just 3 simple steps - no registration needed
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto" data-testid="chat-preview-mockup">
-            <div className="flex h-96 md:h-[500px]">
-              {/* Sidebar */}
-              <div className="w-1/3 bg-gray-50 border-r border-gray-200 p-4">
-                <div className="mb-6">
-                  <h3 className="font-semibold text-dark-text mb-3">University Rooms</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-3 p-2 bg-primary-blue text-white rounded-lg">
-                      <Hash size={14} />
-                      <span className="text-sm font-medium">UP Diliman</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-                      <Hash className="text-neutral-gray" size={14} />
-                      <span className="text-sm text-neutral-gray">Ateneo</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-                      <Hash className="text-neutral-gray" size={14} />
-                      <span className="text-sm text-neutral-gray">UST</span>
-                    </div>
-                  </div>
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl font-bold text-white">1</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Enter Your Username</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Choose any username you like. No personal information required - stay completely anonymous.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Get Instantly Matched</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Our system instantly connects you with another Filipino college student who's online and ready to chat.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Start Chatting</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Begin your conversation! Share experiences, ask questions, get help, or just have fun chatting.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Safety Section */}
+      <section id="safety" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Safe & Secure Environment</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              ChatKOOL is designed to provide a safe, respectful space for Filipino students to connect and learn from each other
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-dark-text mb-3">Study Groups</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-                      <Book className="text-secondary-green" size={14} />
-                      <span className="text-sm text-neutral-gray">Math Help</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-                      <Book className="text-secondary-green" size={14} />
-                      <span className="text-sm text-neutral-gray">CS Students</span>
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Anonymous & Private</h3>
+                  <p className="text-gray-600">Your personal information stays private. Chat without revealing your identity.</p>
                 </div>
               </div>
 
-              {/* Chat Area */}
-              <div className="flex-1 flex flex-col">
-                {/* Chat Header */}
-                <div className="bg-white border-b border-gray-200 p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-dark-text"># UP Diliman</h3>
-                      <p className="text-sm text-neutral-gray">248 members online</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button className="text-neutral-gray hover:text-dark-text">
-                        <Search size={16} />
-                      </button>
-                      <button className="text-neutral-gray hover:text-dark-text">
-                        <Settings size={16} />
-                      </button>
-                    </div>
-                  </div>
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                 </div>
-
-                {/* Messages */}
-                <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold">JD</span>
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-dark-text text-sm">Juan Dela Cruz</span>
-                        <span className="text-xs text-neutral-gray">Today at 2:30 PM</span>
-                      </div>
-                      <p className="text-sm text-neutral-gray">Hey everyone! Anyone here taking MATH 17 this semester?</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-secondary-green rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold">MS</span>
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-dark-text text-sm">Maria Santos</span>
-                        <span className="text-xs text-neutral-gray">Today at 2:32 PM</span>
-                      </div>
-                      <p className="text-sm text-neutral-gray">Yes! I'm in Sir Rodriguez's class. The midterm exam is coming up next week 😅</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-accent-purple rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold">AR</span>
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-dark-text text-sm">Anna Reyes</span>
-                        <span className="text-xs text-neutral-gray">Today at 2:35 PM</span>
-                      </div>
-                      <p className="text-sm text-neutral-gray">Anyone want to form a study group? We could meet at the lib this weekend.</p>
-                    </div>
-                  </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Student-Only Community</h3>
+                  <p className="text-gray-600">Connect only with verified Filipino college and university students.</p>
                 </div>
+              </div>
 
-                {/* Message Input */}
-                <div className="border-t border-gray-200 p-4">
-                  <div className="flex items-center space-x-3">
-                    <input 
-                      type="text" 
-                      placeholder="Message #UP Diliman" 
-                      className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
-                      disabled
-                      data-testid="input-message-preview"
-                    />
-                    <button className="bg-primary-blue text-white p-2 rounded-lg hover:bg-blue-600 transition-colors">
-                      <Send size={16} />
-                    </button>
-                  </div>
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
                 </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Respectful Conversations</h3>
+                  <p className="text-gray-600">Our community promotes positive, respectful dialogue among students.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl p-8">
+                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Join the Community</h3>
+                <p className="text-gray-600 mb-6">
+                  Thousands of Filipino students are already connecting and supporting each other on ChatKOOL
+                </p>
+                <Button 
+                  onClick={() => setLocation('/chat')}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-3 font-bold rounded-full"
+                  data-testid="button-join-community"
+                >
+                  Start Your First Chat
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Community Section */}
-      <section id="community" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark-text mb-4" data-testid="text-community-title">
-              Join Our Growing Community
-            </h2>
-            <p className="text-xl text-neutral-gray max-w-2xl mx-auto" data-testid="text-community-description">
-              Connect with thousands of Filipino college students from universities nationwide.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            <div className="text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
-                alt="Students in university library" 
-                className="rounded-xl shadow-lg w-full h-48 object-cover mb-4"
-                data-testid="img-study-groups"
-              />
-              <h3 className="font-semibold text-dark-text">Study Groups</h3>
-              <p className="text-sm text-neutral-gray">Find study partners and academic support</p>
-            </div>
-
-            <div className="text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
-                alt="University campus scene" 
-                className="rounded-xl shadow-lg w-full h-48 object-cover mb-4"
-                data-testid="img-campus-life"
-              />
-              <h3 className="font-semibold text-dark-text">Campus Life</h3>
-              <p className="text-sm text-neutral-gray">Share experiences and campus stories</p>
-            </div>
-
-            <div className="text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1556761175-4b46a572b786?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
-                alt="Students collaborating online" 
-                className="rounded-xl shadow-lg w-full h-48 object-cover mb-4"
-                data-testid="img-online-community"
-              />
-              <h3 className="font-semibold text-dark-text">Online Community</h3>
-              <p className="text-sm text-neutral-gray">Connect beyond physical boundaries</p>
-            </div>
-
-            <div className="text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1529390079861-591de354faf5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
-                alt="College students celebrating" 
-                className="rounded-xl shadow-lg w-full h-48 object-cover mb-4"
-                data-testid="img-friendships"
-              />
-              <h3 className="font-semibold text-dark-text">Friendships</h3>
-              <p className="text-sm text-neutral-gray">Build lasting connections and memories</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-primary-blue to-accent-purple rounded-2xl p-8 text-center text-white" data-testid="cta-section">
-            <h3 className="text-2xl font-bold mb-4">Ready to Join ChatKOOL?</h3>
-            <p className="text-blue-100 mb-6">Start connecting with fellow Filipino college students today.</p>
-            <Button 
-              onClick={() => setLocation('/chat')}
-              className="bg-white text-primary-blue hover:bg-gray-100 px-8 py-3 font-semibold"
-              data-testid="button-get-started"
-            >
-              Start Chatting Now
-            </Button>
-          </div>
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Ready to Connect with Fellow Filipino Students?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+            Join thousands of Filipino college students already using ChatKOOL to share experiences, 
+            get academic help, and build lasting friendships.
+          </p>
+          <Button 
+            onClick={() => setLocation('/chat')}
+            className="bg-white text-purple-600 hover:bg-gray-100 px-12 py-4 text-xl font-bold rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            data-testid="button-final-cta"
+          >
+            Start Chatting Now - It's Free!
+          </Button>
+          <p className="text-blue-200 mt-6 text-sm">
+            No registration • No personal info required • 100% Anonymous
+          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer id="support" className="bg-dark-text text-white py-12">
+      <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="col-span-2">
@@ -355,43 +307,43 @@ export default function Landing() {
                   alt="ChatKOOL Logo" 
                   className="h-8 w-auto"
                 />
-                <h3 className="text-xl font-bold">ChatKOOL</h3>
+                <h3 className="text-2xl font-bold">ChatKOOL</h3>
               </div>
-              <p className="text-gray-300 mb-6 max-w-md">
-                A special place for college and university students in the Philippines to connect, 
-                share experiences, and build meaningful friendships.
+              <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
+                The premier anonymous chat platform connecting Filipino college and university students 
+                across the Philippines. Share experiences, get help, and make friends safely and anonymously.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Features</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li>University Rooms</li>
-                <li>Study Groups</li>
-                <li>Real-time Chat</li>
-                <li>Safe Environment</li>
+              <h4 className="font-bold mb-4 text-lg">Platform</h4>
+              <ul className="space-y-3 text-gray-300">
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+                <li><a href="#safety" className="hover:text-white transition-colors">Safety</a></li>
+                <li><a href="/chat" className="hover:text-white transition-colors">Start Chat</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li>Help Center</li>
-                <li>Community Guidelines</li>
-                <li>Terms of Service</li>
-                <li>Privacy Policy</li>
+              <h4 className="font-bold mb-4 text-lg">Community</h4>
+              <ul className="space-y-3 text-gray-300">
+                <li>Filipino College Students</li>
+                <li>University Communities</li>
+                <li>Academic Support</li>
+                <li>Cultural Connections</li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-            <p className="text-gray-300">
-              © 2024 ChatKOOL. All rights reserved. Made for Filipino college students.
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+            <p className="text-gray-400">
+              © 2024 ChatKOOL. Connecting Filipino college students nationwide. 
+              Built with ❤️ for the Filipino student community.
             </p>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }
