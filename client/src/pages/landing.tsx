@@ -399,7 +399,7 @@ export default function Landing() {
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center">
             <p className="text-gray-400">
-              © 2024 ChatKOOL. Anonymous online chat platform for Filipino college students nationwide. 
+              © 2025 ChatKOOL. Anonymous online chat platform for Filipino college students nationwide. 
               Chat with strangers safely - Built with ❤️ for the Filipino student community.
             </p>
           </div>
