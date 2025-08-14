@@ -39,43 +39,42 @@ export default function UsernameModal({ isOpen, onSubmit }: UsernameModalProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="max-w-md" data-testid="username-modal">
-        <DialogHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img 
-              src="https://www.chatkool.com/static/media/mainlogo.680cdbd559a984017e33.png" 
-              alt="ChatKOOL Logo" 
-              className="h-12 w-auto"
-            />
+      <DialogContent className="max-w-md border-0 bg-white/95 backdrop-blur-lg shadow-2xl" data-testid="username-modal">
+        <DialogHeader className="text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform duration-300">
+              <span className="text-white font-bold text-2xl">C</span>
+            </div>
           </div>
-          <DialogTitle className="text-2xl font-bold text-dark-text" data-testid="text-username-title">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" data-testid="text-username-title">
             Enter ChatKOOL
           </DialogTitle>
-          <p className="text-neutral-gray" data-testid="text-username-description">
+          <p className="text-gray-600 leading-relaxed" data-testid="text-username-description">
             Choose a username to start chatting with fellow Filipino students
           </p>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4" data-testid="form-username">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6" data-testid="form-username">
+          <div className="space-y-3">
+            <Label htmlFor="username" className="text-gray-700 font-medium">Username</Label>
             <Input
               id="username"
               placeholder="Enter your username"
               {...form.register("username")}
+              className="border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors h-12"
               data-testid="input-username"
             />
             {form.formState.errors.username && (
-              <p className="text-sm text-destructive" data-testid="error-username">
+              <p className="text-sm text-red-500" data-testid="error-username">
                 {form.formState.errors.username.message}
               </p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="university">University (Optional)</Label>
+          <div className="space-y-3">
+            <Label htmlFor="university" className="text-gray-700 font-medium">University (Optional)</Label>
             <Select onValueChange={(value) => form.setValue("university", value)} data-testid="select-university">
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors h-12">
                 <SelectValue placeholder="Select your university" />
               </SelectTrigger>
               <SelectContent>
@@ -90,13 +89,13 @@ export default function UsernameModal({ isOpen, onSubmit }: UsernameModalProps) 
 
           <Button 
             type="submit" 
-            className="w-full bg-primary-blue hover:bg-blue-600"
+            className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white border-0 rounded-xl h-12 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
             data-testid="button-enter-chat"
           >
             Enter Chat
           </Button>
 
-          <p className="text-xs text-neutral-gray text-center">
+          <p className="text-xs text-gray-500 text-center leading-relaxed">
             By entering, you confirm you're 18+ and agree to our community guidelines
           </p>
         </form>

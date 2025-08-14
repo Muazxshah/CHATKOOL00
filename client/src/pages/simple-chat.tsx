@@ -138,20 +138,30 @@ export default function SimpleChat() {
   }
 
   return (
-    <div className="h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
+      {/* Premium Header */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-sm">C</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg">C</span>
             </div>
-            <h1 className="font-bold text-gray-900">ChatKOOL</h1>
+            <div>
+              <h1 className="font-bold text-gray-900 text-lg">ChatKOOL</h1>
+              <p className="text-xs text-gray-500">Connect with students</p>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">Hi, {username}!</span>
+            <div className="flex items-center space-x-2 bg-green-50 px-3 py-1.5 rounded-full">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-green-700">{username}</span>
+            </div>
             {currentRoom && (
-              <Button onClick={startNewChat} variant="outline" size="sm">
+              <Button 
+                onClick={startNewChat} 
+                size="sm"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+              >
                 New Chat
               </Button>
             )}
@@ -159,37 +169,69 @@ export default function SimpleChat() {
         </div>
       </div>
 
-      {/* Chat Interface */}
+      {/* Premium Chat Interface */}
       {currentRoom && matchedUser ? (
-        <div className="flex-1 flex flex-col">
-          {/* Chat Header */}
-          <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
-            <h2 className="font-semibold text-gray-900">Chatting with {matchedUser}</h2>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.username === username ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    msg.username === username
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-900'
-                  }`}
-                >
-                  <p className="text-sm">{msg.content}</p>
+        <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+          {/* Chat Header - Compact Premium */}
+          <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-6 py-3 mx-4 mt-4 rounded-t-xl shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+                  <span className="text-white font-semibold text-lg">{matchedUser.charAt(0).toUpperCase()}</span>
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-900">{matchedUser}</h2>
+                  <p className="text-xs text-green-600 font-medium">● Online</p>
                 </div>
               </div>
-            ))}
+              <div className="text-xs text-gray-500">Anonymous Chat</div>
+            </div>
           </div>
 
-          {/* Message Input */}
-          <div className="border-t border-gray-200 p-4">
-            <div className="flex space-x-2">
+          {/* Messages - Compact Design */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 mx-4 bg-white/50 backdrop-blur-sm space-y-3">
+            {messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-4 mx-auto shadow-lg">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600 font-medium">Start your conversation!</p>
+                  <p className="text-sm text-gray-500">Say hello to {matchedUser}</p>
+                </div>
+              </div>
+            ) : (
+              messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.username === username ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`flex items-end space-x-2 max-w-xs ${msg.username === username ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                    {msg.username !== username && (
+                      <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span className="text-white text-xs font-medium">{msg.username.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
+                    <div
+                      className={`px-4 py-2.5 rounded-2xl shadow-sm ${
+                        msg.username === username
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                          : 'bg-white text-gray-900 border border-gray-200'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Message Input - Premium Compact */}
+          <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-6 py-4 mx-4 mb-4 rounded-b-xl shadow-sm">
+            <div className="flex space-x-3">
               <Input
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
@@ -199,47 +241,58 @@ export default function SimpleChat() {
                     sendMessage();
                   }
                 }}
-                className="flex-1"
+                className="flex-1 border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors"
               />
-              <Button onClick={sendMessage}>Send</Button>
+              <Button 
+                onClick={sendMessage}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-6 shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </Button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center p-8">
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center max-w-md mx-auto">
             {isLookingForMatch ? (
-              <>
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6 mx-auto animate-pulse">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100">
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl animate-pulse">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-white animate-ping"></div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Looking for someone to chat...</h3>
-                <p className="text-gray-600 mb-6">Finding a random student for you to connect with!</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Finding your match...</h3>
+                <p className="text-gray-600 mb-6 text-sm">Connecting you with another student right now!</p>
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-2 h-2 bg-gradient-to-r from-pink-600 to-red-600 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
                 </div>
-              </>
+              </div>
             ) : (
-              <>
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-10 shadow-xl border border-gray-100">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-2xl">
+                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect with Random Students</h3>
-                <p className="text-gray-600 mb-8">Start a conversation with a random Filipino college student!</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Instantly</h3>
+                <p className="text-gray-600 mb-8 leading-relaxed">Start an anonymous conversation with a random Filipino college student. Share experiences, get help, or just have fun!</p>
                 <Button 
                   onClick={startChat} 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-3 text-lg font-semibold"
+                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   disabled={isLookingForMatch}
                 >
                   Start Random Chat
                 </Button>
-              </>
+                <p className="text-xs text-gray-500 mt-4">Anonymous • Secure • Instant</p>
+              </div>
             )}
           </div>
         </div>
