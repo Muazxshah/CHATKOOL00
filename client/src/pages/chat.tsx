@@ -23,20 +23,29 @@ export default function Chat() {
       return await apiRequest('/api/random-chat', 'POST', { username });
     },
     onSuccess: (data: any) => {
+      console.log('Random chat response:', data);
       if (data.matched) {
         setCurrentRoom(data.room);
         setMatchedUser(data.matchedUser);
         setIsSearching(false);
+        // Clear any existing polling
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current);
+        }
       } else {
         // If no match, start polling for matches
-        if (username) {
-          startPollingForMatches(username);
-        }
+        startPollingForMatches(username);
       }
+    },
+    onError: (error) => {
+      console.error('Random chat error:', error);
+      setIsSearching(false);
     }
   });
 
   const startPollingForMatches = (username: string) => {
+    console.log('Starting polling for matches for:', username);
+    
     // Clear any existing polling
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
@@ -44,24 +53,31 @@ export default function Chat() {
 
     pollIntervalRef.current = setInterval(async () => {
       try {
+        console.log('Polling for match...');
         const response = await apiRequest('/api/random-chat', 'POST', { username }) as any;
+        console.log('Poll response:', response);
+        
         if (response.matched) {
+          console.log('Match found!', response);
           setCurrentRoom(response.room);
           setMatchedUser(response.matchedUser);
           setIsSearching(false);
           if (pollIntervalRef.current) {
             clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
           }
         }
       } catch (error) {
         console.error('Polling error:', error);
       }
-    }, 2000); // Poll every 2 seconds
+    }, 3000); // Poll every 3 seconds
 
     // Stop polling after 60 seconds
     setTimeout(() => {
+      console.log('Polling timeout reached');
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
       }
       setIsSearching(false);
     }, 60000);
