@@ -34,7 +34,9 @@ export default function Chat() {
         }
       } else {
         // If no match, start polling for matches
-        startPollingForMatches(username);
+        if (username) {
+          startPollingForMatches(username);
+        }
       }
     },
     onError: (error) => {
