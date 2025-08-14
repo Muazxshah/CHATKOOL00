@@ -90,7 +90,10 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const room: ChatRoom = {
       id,
-      ...insertRoom,
+      name: insertRoom.name,
+      description: insertRoom.description || null,
+      type: insertRoom.type,
+      university: insertRoom.university || null,
       memberCount: 0,
       createdAt: new Date()
     };

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/queryClient";
 import UsernameModal from "@/components/username-modal";
+import { useLocation } from "wouter";
 import type { ChatRoom, UserEntry } from "@shared/schema";
 
 interface Message {
@@ -22,6 +23,7 @@ export default function SimpleChat() {
   const [messageInput, setMessageInput] = useState("");
   const [ws, setWs] = useState<WebSocket | null>(null);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const [, setLocation] = useLocation();
 
   // Simple WebSocket connection
   useEffect(() => {
@@ -142,7 +144,7 @@ export default function SimpleChat() {
       {/* Premium Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.location.href = '/'}>
+          <div className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation('/')}>
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-200">
               <span className="text-white font-bold text-lg">C</span>
             </div>
