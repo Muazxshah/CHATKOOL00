@@ -13,8 +13,11 @@ export function useWebSocket(roomId?: string, username?: string) {
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    // Handle custom domain and deployment URLs
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/ws`;
     
+    console.log('Connecting to WebSocket:', wsUrl);
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
@@ -74,6 +77,7 @@ export function useWebSocket(roomId?: string, username?: string) {
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      console.error('Failed to connect to:', wsUrl);
       setIsConnected(false);
     };
 

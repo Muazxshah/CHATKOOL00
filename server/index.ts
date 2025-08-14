@@ -1,8 +1,40 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// Enhanced CORS configuration for custom domains
+app.use(cors({
+  origin: function (origin: string | undefined, callback: (error: Error | null, success?: boolean) => void) {
+    // Allow all origins for development and deployment
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5000', 
+      'https://chatkool.net',
+      'http://chatkool.net',
+      /\.replit\.app$/,
+      /\.replit\.dev$/
+    ];
+    
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return allowed === origin;
+      }
+      return allowed.test(origin);
+    });
+    
+    callback(null, isAllowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
