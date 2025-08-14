@@ -1,26 +1,34 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import ChatSidebar from "@/components/chat-sidebar";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ChatMessages from "@/components/chat-messages";
 import MessageInput from "@/components/message-input";
 import UsernameModal from "@/components/username-modal";
 import { useWebSocket } from "@/hooks/use-websocket";
+import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/queryClient";
 import type { ChatRoom, UserEntry } from "@shared/schema";
 
 export default function Chat() {
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
+  const [currentRoom, setCurrentRoom] = useState<ChatRoom | null>(null);
   const [username, setUsername] = useState<string | null>(null);
-  
-  const { data: rooms = [], isLoading } = useQuery<ChatRoom[]>({
-    queryKey: ['/api/rooms'],
-    queryFn: async () => {
-      const response = await fetch('/api/rooms');
-      if (!response.ok) throw new Error('Failed to fetch rooms');
-      return response.json();
+  const [matchedUser, setMatchedUser] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { messages, sendMessage, isConnected } = useWebSocket(currentRoom?.id || undefined, username || undefined);
+
+  const randomChatMutation = useMutation({
+    mutationFn: async (username: string) => {
+      return await apiRequest('/api/random-chat', 'POST', { username });
+    },
+    onSuccess: (data: any) => {
+      if (data.matched) {
+        setCurrentRoom(data.room);
+        setMatchedUser(data.matchedUser);
+        setIsSearching(false);
+      }
     }
   });
-
-  const { messages, sendMessage, isConnected } = useWebSocket(selectedRoom?.id, username);
 
   const handleUsernameSubmit = (userData: UserEntry) => {
     setUsername(userData.username);
@@ -28,6 +36,19 @@ export default function Chat() {
     if (userData.university) {
       localStorage.setItem('chatkool_university', userData.university);
     }
+  };
+
+  const startRandomChat = () => {
+    if (username) {
+      setIsSearching(true);
+      randomChatMutation.mutate(username);
+    }
+  };
+
+  const startNewChat = () => {
+    setCurrentRoom(null);
+    setMatchedUser(null);
+    setIsSearching(false);
   };
 
   // Check if user already has a stored username
@@ -41,21 +62,10 @@ export default function Chat() {
     return <UsernameModal isOpen={true} onSubmit={handleUsernameSubmit} />;
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-bg-light flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue mx-auto mb-4"></div>
-          <p className="text-neutral-gray">Loading chat rooms...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="h-screen bg-white flex" data-testid="chat-container">
+    <div className="h-screen bg-white flex flex-col" data-testid="chat-container">
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <img 
@@ -77,64 +87,70 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="flex flex-1 mt-16">
-        {/* Sidebar */}
-        <ChatSidebar 
-          rooms={rooms}
-          selectedRoom={selectedRoom}
-          onRoomSelect={setSelectedRoom}
-          data-testid="chat-sidebar"
-        />
-
-        {/* Main Chat Area */}
+      {/* Main Content */}
+      {currentRoom && matchedUser ? (
         <div className="flex-1 flex flex-col">
-          {selectedRoom ? (
-            <>
-              {/* Chat Header */}
-              <div className="bg-white border-b border-gray-200 p-4" data-testid="chat-header">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-dark-text" data-testid="text-room-name">
-                      # {selectedRoom.name}
-                    </h3>
-                    <p className="text-sm text-neutral-gray" data-testid="text-room-description">
-                      {selectedRoom.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Messages */}
-              <ChatMessages 
-                messages={messages}
-                roomId={selectedRoom.id}
-                data-testid="chat-messages"
-              />
-
-              {/* Message Input */}
-              <MessageInput 
-                onSendMessage={sendMessage}
-                placeholder={`Message #${selectedRoom.name}`}
-                data-testid="message-input"
-              />
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center bg-bg-light" data-testid="no-room-selected">
-              <div className="text-center max-w-md mx-auto px-4">
-                <div className="w-16 h-16 bg-primary-blue rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-white text-2xl">#</span>
-                </div>
-                <h3 className="text-xl font-semibold text-dark-text mb-4">
-                  Welcome to ChatKOOL!
-                </h3>
-                <p className="text-neutral-gray">
-                  Select a room from the sidebar to start chatting with fellow Filipino college students.
-                </p>
-              </div>
+          {/* Chat Header */}
+          <div className="border-b border-gray-200 px-6 py-4 bg-white flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold text-dark-text">Chatting with {matchedUser}</h2>
+              <p className="text-sm text-neutral-gray">Direct message</p>
             </div>
-          )}
+            <Button onClick={startNewChat} variant="outline" size="sm" data-testid="button-new-chat">
+              New Chat
+            </Button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-hidden">
+            <ChatMessages messages={messages} roomId={currentRoom.id} />
+          </div>
+
+          {/* Message Input */}
+          <div className="border-t border-gray-200 p-4 bg-white">
+            <MessageInput onSendMessage={sendMessage} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+          <div className="text-center p-8 max-w-md">
+            {isSearching ? (
+              <>
+                <div className="w-16 h-16 bg-primary-blue rounded-full flex items-center justify-center mb-6 mx-auto animate-pulse">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-dark-text mb-4">Looking for someone to chat...</h3>
+                <p className="text-neutral-gray mb-6">We're finding a random Filipino college student for you to connect with!</p>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-2 h-2 bg-primary-blue rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-primary-blue rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-primary-blue rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 bg-gradient-to-r from-primary-blue to-accent-purple rounded-full flex items-center justify-center mb-6 mx-auto">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-dark-text mb-4">Connect with Random Students</h3>
+                <p className="text-neutral-gray mb-8">Start a conversation with a random Filipino college student. Share experiences, get help, or just chat!</p>
+                <Button 
+                  onClick={startRandomChat} 
+                  className="bg-gradient-to-r from-primary-blue to-accent-purple hover:from-blue-600 hover:to-purple-600 px-8 py-3 text-lg font-semibold"
+                  data-testid="button-start-random-chat"
+                  disabled={isSearching}
+                >
+                  Start Random Chat
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

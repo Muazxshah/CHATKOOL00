@@ -31,6 +31,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Start random chat - find a match
+  app.post("/api/random-chat", async (req, res) => {
+    try {
+      const { username } = req.body;
+      if (!username) {
+        return res.status(400).json({ message: "Username required" });
+      }
+
+      const matchedUser = await storage.findRandomMatch(username);
+      if (matchedUser) {
+        // Create a direct chat room
+        const room = await storage.createDirectRoom(username, matchedUser);
+        res.json({ matched: true, room, matchedUser });
+      } else {
+        res.json({ matched: false, message: "Waiting for another user..." });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket server for real-time chat
@@ -48,6 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const userData = userEntrySchema.parse(message);
             ws.username = userData.username;
+            await storage.addOnlineUser(userData.username);
             ws.send(JSON.stringify({ type: 'username_set', username: userData.username }));
           } catch (error) {
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid username' }));
@@ -94,8 +116,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
 
-    ws.on('close', () => {
+    ws.on('close', async () => {
       console.log('WebSocket connection closed');
+      if (ws.username) {
+        await storage.removeOnlineUser(ws.username);
+      }
     });
   });
 

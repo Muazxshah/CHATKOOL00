@@ -20,54 +20,35 @@ export interface IStorage {
   // Message operations - simplified for anonymous chat
   getMessagesByRoom(roomId: string, limit?: number): Promise<MessageWithUser[]>;
   createMessage(message: InsertMessage): Promise<MessageWithUser>;
+  
+  // Online users and matching
+  addOnlineUser(username: string): Promise<void>;
+  removeOnlineUser(username: string): Promise<void>;
+  getOnlineUsers(): Promise<string[]>;
+  findRandomMatch(currentUser: string): Promise<string | null>;
+  createDirectRoom(user1: string, user2: string): Promise<ChatRoom>;
 }
 
 export class MemStorage implements IStorage {
   private rooms: Map<string, ChatRoom>;
   private messages: Map<string, Message>;
+  private onlineUsers: Set<string>;
+  private waitingForMatch: Set<string>;
 
   constructor() {
     this.rooms = new Map();
     this.messages = new Map();
+    this.onlineUsers = new Set();
+    this.waitingForMatch = new Set();
     this.initializeDefaultRooms();
   }
 
   private initializeDefaultRooms() {
     const defaultRooms = [
       {
-        name: "Math Help",
-        description: "Get help with mathematics subjects",
-        type: "study_group",
-        university: null
-      },
-      {
-        name: "CS Students",
-        description: "Computer Science students discussion",
-        type: "study_group", 
-        university: null
-      },
-      {
-        name: "Engineering",
-        description: "Engineering students and projects",
-        type: "study_group",
-        university: null
-      },
-      {
-        name: "Business & Finance",
-        description: "Business, economics, and finance discussions",
-        type: "study_group",
-        university: null
-      },
-      {
-        name: "Science",
-        description: "Physics, chemistry, biology discussions",
-        type: "study_group",
-        university: null
-      },
-      {
-        name: "General Chat",
-        description: "General discussions and casual conversations",
-        type: "general",
+        name: "Random Chat",
+        description: "Connect with random Filipino college students",
+        type: "random",
         university: null
       }
     ];
@@ -143,6 +124,56 @@ export class MemStorage implements IStorage {
         username: message.username
       }
     };
+  }
+
+  async addOnlineUser(username: string): Promise<void> {
+    this.onlineUsers.add(username);
+  }
+
+  async removeOnlineUser(username: string): Promise<void> {
+    this.onlineUsers.delete(username);
+    this.waitingForMatch.delete(username);
+  }
+
+  async getOnlineUsers(): Promise<string[]> {
+    return Array.from(this.onlineUsers);
+  }
+
+  async findRandomMatch(currentUser: string): Promise<string | null> {
+    // Add current user to waiting list
+    this.waitingForMatch.add(currentUser);
+    
+    // Find another user who is waiting (excluding current user)
+    const availableUsers = Array.from(this.waitingForMatch).filter(user => user !== currentUser);
+    
+    if (availableUsers.length > 0) {
+      // Pick random user
+      const randomIndex = Math.floor(Math.random() * availableUsers.length);
+      const matchedUser = availableUsers[randomIndex];
+      
+      // Remove both users from waiting list
+      this.waitingForMatch.delete(currentUser);
+      this.waitingForMatch.delete(matchedUser);
+      
+      return matchedUser;
+    }
+    
+    return null; // No match found, user stays in waiting list
+  }
+
+  async createDirectRoom(user1: string, user2: string): Promise<ChatRoom> {
+    const roomId = randomUUID();
+    const room: ChatRoom = {
+      id: roomId,
+      name: `${user1} & ${user2}`,
+      description: `Direct chat between ${user1} and ${user2}`,
+      type: "direct",
+      university: null,
+      memberCount: 2,
+      createdAt: new Date()
+    };
+    this.rooms.set(roomId, room);
+    return room;
   }
 }
 
