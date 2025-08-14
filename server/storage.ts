@@ -32,32 +32,8 @@ export class MemStorage implements IStorage {
     this.initializeDefaultRooms();
   }
 
-  private async initializeDefaultRooms() {
+  private initializeDefaultRooms() {
     const defaultRooms = [
-      {
-        name: "UP Diliman",
-        description: "University of the Philippines Diliman students",
-        type: "university",
-        university: "University of the Philippines"
-      },
-      {
-        name: "Ateneo",
-        description: "Ateneo de Manila University students",
-        type: "university", 
-        university: "Ateneo de Manila University"
-      },
-      {
-        name: "UST",
-        description: "University of Santo Tomas students",
-        type: "university",
-        university: "University of Santo Tomas"
-      },
-      {
-        name: "DLSU",
-        description: "De La Salle University students",
-        type: "university",
-        university: "De La Salle University"
-      },
       {
         name: "Math Help",
         description: "Get help with mathematics subjects",
@@ -69,6 +45,30 @@ export class MemStorage implements IStorage {
         description: "Computer Science students discussion",
         type: "study_group", 
         university: null
+      },
+      {
+        name: "Engineering",
+        description: "Engineering students and projects",
+        type: "study_group",
+        university: null
+      },
+      {
+        name: "Business & Finance",
+        description: "Business, economics, and finance discussions",
+        type: "study_group",
+        university: null
+      },
+      {
+        name: "Science",
+        description: "Physics, chemistry, biology discussions",
+        type: "study_group",
+        university: null
+      },
+      {
+        name: "General Chat",
+        description: "General discussions and casual conversations",
+        type: "general",
+        university: null
       }
     ];
 
@@ -76,7 +76,7 @@ export class MemStorage implements IStorage {
       const room: ChatRoom = {
         id: randomUUID(),
         name: roomData.name,
-        description: roomData.description || null,
+        description: roomData.description,
         type: roomData.type,
         university: roomData.university,
         memberCount: 0,
