@@ -3,27 +3,43 @@ import { useQuery } from "@tanstack/react-query";
 import ChatSidebar from "@/components/chat-sidebar";
 import ChatMessages from "@/components/chat-messages";
 import MessageInput from "@/components/message-input";
+import UsernameModal from "@/components/username-modal";
 import { useWebSocket } from "@/hooks/use-websocket";
-import { getAuthToken } from "@/lib/auth";
-import type { ChatRoom } from "@shared/schema";
+import type { ChatRoom, UserEntry } from "@shared/schema";
 
 export default function Chat() {
   const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   
   const { data: rooms = [], isLoading } = useQuery<ChatRoom[]>({
     queryKey: ['/api/rooms'],
     queryFn: async () => {
-      const response = await fetch('/api/rooms', {
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        }
-      });
+      const response = await fetch('/api/rooms');
       if (!response.ok) throw new Error('Failed to fetch rooms');
       return response.json();
     }
   });
 
-  const { messages, sendMessage, isConnected } = useWebSocket(selectedRoom?.id);
+  const { messages, sendMessage, isConnected } = useWebSocket(selectedRoom?.id, username);
+
+  const handleUsernameSubmit = (userData: UserEntry) => {
+    setUsername(userData.username);
+    localStorage.setItem('chatkool_username', userData.username);
+    if (userData.university) {
+      localStorage.setItem('chatkool_university', userData.university);
+    }
+  };
+
+  // Check if user already has a stored username
+  const storedUsername = localStorage.getItem('chatkool_username');
+  if (!username && storedUsername) {
+    setUsername(storedUsername);
+  }
+
+  // Show username modal if no username is set
+  if (!username) {
+    return <UsernameModal isOpen={true} onSubmit={handleUsernameSubmit} />;
+  }
 
   if (isLoading) {
     return (
@@ -49,11 +65,14 @@ export default function Chat() {
             />
             <h1 className="font-bold text-dark-text">ChatKOOL</h1>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-secondary-green' : 'bg-gray-400'}`}></div>
-            <span className="text-sm text-neutral-gray">
-              {isConnected ? 'Connected' : 'Connecting...'}
-            </span>
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-neutral-gray">Hi, {username}!</span>
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-secondary-green' : 'bg-gray-400'}`}></div>
+              <span className="text-sm text-neutral-gray">
+                {isConnected ? 'Connected' : 'Connecting...'}
+              </span>
+            </div>
           </div>
         </div>
       </div>

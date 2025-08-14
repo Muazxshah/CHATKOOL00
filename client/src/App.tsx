@@ -6,23 +6,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
-import Login from "@/pages/login";
-import { isAuthenticated } from "@/lib/auth";
-
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  if (!isAuthenticated()) {
-    window.location.href = "/login";
-    return null;
-  }
-  return <Component />;
-}
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
-      <Route path="/login" component={Login} />
-      <Route path="/chat" component={() => <ProtectedRoute component={Chat} />} />
+      <Route path="/chat" component={Chat} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAuthToken } from "@/lib/auth";
 import type { MessageWithUser } from "@shared/schema";
 
 interface ChatMessagesProps {
@@ -23,11 +22,7 @@ export default function ChatMessages({ messages, roomId }: ChatMessagesProps) {
   const { data: initialMessages = [] } = useQuery<MessageWithUser[]>({
     queryKey: ['/api/rooms', roomId, 'messages'],
     queryFn: async () => {
-      const response = await fetch(`/api/rooms/${roomId}/messages`, {
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        }
-      });
+      const response = await fetch(`/api/rooms/${roomId}/messages`);
       if (!response.ok) throw new Error('Failed to fetch messages');
       return response.json();
     },

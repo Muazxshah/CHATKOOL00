@@ -1,48 +1,34 @@
 import { 
   type User, 
-  type InsertUser, 
+  type UserEntry, 
   type Message,
   type InsertMessage,
   type MessageWithUser,
   type ChatRoom,
   type InsertRoom,
-  type RoomMember,
-  type LoginData
+  type RoomMember
 } from "@shared/schema";
 import { randomUUID } from "crypto";
-import bcrypt from "bcryptjs";
-
 export interface IStorage {
-  // User operations
-  getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  validateUser(email: string, password: string): Promise<User | null>;
-  
   // Room operations
   getAllRooms(): Promise<ChatRoom[]>;
   getRoomsByType(type: string): Promise<ChatRoom[]>;
   getRoomsByUniversity(university: string): Promise<ChatRoom[]>;
   getRoom(id: string): Promise<ChatRoom | undefined>;
   createRoom(room: InsertRoom): Promise<ChatRoom>;
-  joinRoom(userId: string, roomId: string): Promise<void>;
   
-  // Message operations
+  // Message operations - simplified for anonymous chat
   getMessagesByRoom(roomId: string, limit?: number): Promise<MessageWithUser[]>;
   createMessage(message: InsertMessage): Promise<MessageWithUser>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
   private rooms: Map<string, ChatRoom>;
   private messages: Map<string, Message>;
-  private roomMembers: Map<string, RoomMember>;
 
   constructor() {
-    this.users = new Map();
     this.rooms = new Map();
     this.messages = new Map();
-    this.roomMembers = new Map();
     this.initializeDefaultRooms();
   }
 
@@ -90,7 +76,7 @@ export class MemStorage implements IStorage {
       const room: ChatRoom = {
         id: randomUUID(),
         name: roomData.name,
-        description: roomData.description,
+        description: roomData.description || null,
         type: roomData.type,
         university: roomData.university,
         memberCount: 0,
@@ -98,39 +84,6 @@ export class MemStorage implements IStorage {
       };
       this.rooms.set(room.id, room);
     }
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.email === email);
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const hashedPassword = await bcrypt.hash(insertUser.password, 12);
-    const id = randomUUID();
-    const user: User = {
-      id,
-      username: insertUser.username,
-      email: insertUser.email,
-      password: hashedPassword,
-      fullName: insertUser.fullName,
-      university: insertUser.university,
-      isVerified: true, // Auto-verify for demo
-      createdAt: new Date()
-    };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.getUserByEmail(email);
-    if (!user) return null;
-    
-    const isValid = await bcrypt.compare(password, user.password);
-    return isValid ? user : null;
   }
 
   async getAllRooms(): Promise<ChatRoom[]> {
@@ -161,45 +114,18 @@ export class MemStorage implements IStorage {
     return room;
   }
 
-  async joinRoom(userId: string, roomId: string): Promise<void> {
-    const membershipId = randomUUID();
-    const membership: RoomMember = {
-      id: membershipId,
-      userId,
-      roomId,
-      joinedAt: new Date()
-    };
-    this.roomMembers.set(membershipId, membership);
-
-    // Update member count
-    const room = this.rooms.get(roomId);
-    if (room) {
-      room.memberCount = room.memberCount + 1;
-      this.rooms.set(roomId, room);
-    }
-  }
-
   async getMessagesByRoom(roomId: string, limit: number = 50): Promise<MessageWithUser[]> {
     const roomMessages = Array.from(this.messages.values())
       .filter(msg => msg.roomId === roomId)
       .sort((a, b) => a.createdAt!.getTime() - b.createdAt!.getTime())
       .slice(-limit);
 
-    return roomMessages.map(msg => {
-      const user = this.users.get(msg.userId);
-      return {
-        ...msg,
-        user: user ? {
-          id: user.id,
-          username: user.username,
-          fullName: user.fullName
-        } : {
-          id: 'unknown',
-          username: 'Unknown User',
-          fullName: 'Unknown User'
-        }
-      };
-    });
+    return roomMessages.map(msg => ({
+      ...msg,
+      user: {
+        username: msg.username
+      }
+    }));
   }
 
   async createMessage(insertMessage: InsertMessage): Promise<MessageWithUser> {
@@ -211,17 +137,10 @@ export class MemStorage implements IStorage {
     };
     this.messages.set(id, message);
 
-    const user = this.users.get(message.userId);
     return {
       ...message,
-      user: user ? {
-        id: user.id,
-        username: user.username,
-        fullName: user.fullName
-      } : {
-        id: 'unknown',
-        username: 'Unknown User',
-        fullName: 'Unknown User'
+      user: {
+        username: message.username
       }
     };
   }

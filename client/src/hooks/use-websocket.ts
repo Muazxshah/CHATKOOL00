@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { getAuthToken } from "@/lib/auth";
 import type { MessageWithUser } from "@shared/schema";
 
-export function useWebSocket(roomId?: string) {
+export function useWebSocket(roomId?: string, username?: string) {
   const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
@@ -23,12 +22,11 @@ export function useWebSocket(roomId?: string) {
       console.log('WebSocket connected');
       setIsConnected(true);
       
-      // Authenticate the connection
-      const token = getAuthToken();
-      if (token) {
+      // Set username for anonymous chat
+      if (username) {
         ws.send(JSON.stringify({
-          type: 'auth',
-          token: token
+          type: 'set_username',
+          username: username
         }));
       }
     };
@@ -37,8 +35,8 @@ export function useWebSocket(roomId?: string) {
       const data = JSON.parse(event.data);
       
       switch (data.type) {
-        case 'auth_success':
-          console.log('WebSocket authenticated');
+        case 'username_set':
+          console.log('Username set:', data.username);
           // Join the current room if one is selected
           if (currentRoomRef.current) {
             ws.send(JSON.stringify({
@@ -48,8 +46,8 @@ export function useWebSocket(roomId?: string) {
           }
           break;
           
-        case 'auth_error':
-          console.error('WebSocket auth error:', data.message);
+        case 'error':
+          console.error('WebSocket error:', data.message);
           break;
           
         case 'joined_room':
@@ -82,7 +80,7 @@ export function useWebSocket(roomId?: string) {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [username]);
 
   // Join room when roomId changes
   useEffect(() => {

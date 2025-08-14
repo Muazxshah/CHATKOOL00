@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import RegistrationModal from "@/components/registration-modal";
+import { useLocation } from "wouter";
 import { University, MessageCircle, Shield, Book, Hash, Search, Settings, Send } from "lucide-react";
 
 export default function Landing() {
-  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [, setLocation] = useLocation();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -48,11 +47,11 @@ export default function Landing() {
                 Support
               </button>
               <Button 
-                onClick={() => setIsRegistrationOpen(true)}
+                onClick={() => setLocation('/chat')}
                 className="bg-primary-blue text-white hover:bg-blue-600"
                 data-testid="button-join-nav"
               >
-                Join Now
+                Start Chatting
               </Button>
             </div>
           </div>
@@ -74,7 +73,7 @@ export default function Landing() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
-                  onClick={() => setIsRegistrationOpen(true)}
+                  onClick={() => setLocation('/chat')}
                   className="bg-secondary-green text-white hover:bg-green-600 px-8 py-3 font-semibold"
                   data-testid="button-start-chatting"
                 >
@@ -335,11 +334,11 @@ export default function Landing() {
             <h3 className="text-2xl font-bold mb-4">Ready to Join ChatKOOL?</h3>
             <p className="text-blue-100 mb-6">Start connecting with fellow Filipino college students today.</p>
             <Button 
-              onClick={() => setIsRegistrationOpen(true)}
+              onClick={() => setLocation('/chat')}
               className="bg-white text-primary-blue hover:bg-gray-100 px-8 py-3 font-semibold"
               data-testid="button-get-started"
             >
-              Get Started Now
+              Start Chatting Now
             </Button>
           </div>
         </div>
@@ -393,10 +392,6 @@ export default function Landing() {
         </div>
       </footer>
 
-      <RegistrationModal 
-        isOpen={isRegistrationOpen}
-        onClose={() => setIsRegistrationOpen(false)}
-      />
     </div>
   );
 }
