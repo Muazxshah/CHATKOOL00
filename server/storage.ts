@@ -35,11 +35,14 @@ export class MemStorage implements IStorage {
   private onlineUsers: Set<string>;
   private waitingForMatch: Set<string>;
 
+  private pendingMatches = new Map<string, { matchedUser: string; room: ChatRoom }>();
+
   constructor() {
     this.rooms = new Map();
     this.messages = new Map();
     this.onlineUsers = new Set();
     this.waitingForMatch = new Set();
+    this.pendingMatches = new Map();
     this.initializeDefaultRooms();
   }
 
@@ -133,6 +136,7 @@ export class MemStorage implements IStorage {
   async removeOnlineUser(username: string): Promise<void> {
     this.onlineUsers.delete(username);
     this.waitingForMatch.delete(username);
+    this.pendingMatches.delete(username);
   }
 
   async getOnlineUsers(): Promise<string[]> {
@@ -141,6 +145,14 @@ export class MemStorage implements IStorage {
 
   async findRandomMatch(currentUser: string): Promise<{ matchedUser: string; room: ChatRoom } | null> {
     console.log(`Finding match for ${currentUser}, waiting list:`, Array.from(this.waitingForMatch));
+    
+    // Check if this user already has a pending match
+    const existingMatch = this.pendingMatches.get(currentUser);
+    if (existingMatch) {
+      console.log(`Returning existing match for ${currentUser}:`, existingMatch.matchedUser);
+      this.pendingMatches.delete(currentUser); // Clear the pending match
+      return existingMatch;
+    }
     
     // Find another user who is waiting (excluding current user)
     const availableUsers = Array.from(this.waitingForMatch).filter(user => user !== currentUser);
@@ -158,6 +170,9 @@ export class MemStorage implements IStorage {
       
       // Create room immediately for the match
       const room = await this.createDirectRoom(currentUser, matchedUser);
+      
+      // Store the match for the other user to retrieve
+      this.pendingMatches.set(matchedUser, { matchedUser: currentUser, room });
       
       return { matchedUser, room };
     }
