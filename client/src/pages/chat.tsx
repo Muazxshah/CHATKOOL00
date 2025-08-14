@@ -23,11 +23,14 @@ export default function Chat() {
       return await apiRequest('/api/random-chat', 'POST', { username });
     },
     onSuccess: (data: any) => {
+      console.log('Initial random chat response:', data);
       if (data.matched) {
+        console.log('Immediate match found!');
         setCurrentRoom(data.room);
         setMatchedUser(data.matchedUser);
         setIsSearching(false);
       } else {
+        console.log('No immediate match, starting to poll...');
         // If no match, start polling for matches
         if (username) {
           startPollingForMatches(username);
@@ -44,8 +47,11 @@ export default function Chat() {
 
     pollIntervalRef.current = setInterval(async () => {
       try {
+        console.log('Polling for match for user:', username);
         const response = await apiRequest('/api/random-chat', 'POST', { username }) as any;
+        console.log('Polling response:', response);
         if (response.matched) {
+          console.log('Match found!', response);
           setCurrentRoom(response.room);
           setMatchedUser(response.matchedUser);
           setIsSearching(false);
