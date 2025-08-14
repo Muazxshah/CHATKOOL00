@@ -147,14 +147,14 @@ export default function SimpleChat() {
               <span className="text-white font-bold text-lg">C</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900 text-lg hover:text-purple-600 transition-colors duration-200">ChatKOOL 💬</h1>
-              <p className="text-xs text-gray-500">Connect with students 🎓</p>
+              <h1 className="font-bold text-gray-900 text-lg hover:text-purple-600 transition-colors duration-200">ChatKOOL</h1>
+              <p className="text-xs text-gray-500">Connect with students</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 bg-green-50 px-3 py-1.5 rounded-full">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-green-700">👋 {username}</span>
+              <span className="text-sm font-medium text-green-700">{username}</span>
             </div>
             {currentRoom && (
               <Button 
@@ -180,11 +180,11 @@ export default function SimpleChat() {
                   <span className="text-white font-semibold text-lg">{matchedUser.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
-                  <h2 className="font-semibold text-gray-900">💬 {matchedUser}</h2>
-                  <p className="text-xs text-green-600 font-medium">🟢 Online</p>
+                  <h2 className="font-semibold text-gray-900">{matchedUser}</h2>
+                  <p className="text-xs text-green-600 font-medium">● Online</p>
                 </div>
               </div>
-              <div className="text-xs text-gray-500">🔒 Anonymous Chat</div>
+              <div className="text-xs text-gray-500">Anonymous Chat</div>
             </div>
           </div>
 
@@ -198,8 +198,8 @@ export default function SimpleChat() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   </div>
-                  <p className="text-gray-600 font-medium">🚀 Start your conversation!</p>
-                  <p className="text-sm text-gray-500">👋 Say hello to {matchedUser}</p>
+                  <p className="text-gray-600 font-medium">Start your conversation!</p>
+                  <p className="text-sm text-gray-500">Say hello to {matchedUser}</p>
                 </div>
               </div>
             ) : (
@@ -237,12 +237,12 @@ export default function SimpleChat() {
                 variant="outline"
                 className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-xl px-4"
               >
-                ❌ End Chat
+                End Chat
               </Button>
               <Input
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
-                placeholder="💭 Type your message..."
+                placeholder="Type your message..."
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     sendMessage();
@@ -254,7 +254,9 @@ export default function SimpleChat() {
                 onClick={sendMessage}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-6 shadow-md hover:shadow-lg transition-all duration-200"
               >
-                🚀
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
               </Button>
             </div>
           </div>
@@ -272,8 +274,8 @@ export default function SimpleChat() {
                   </div>
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-white animate-ping"></div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">🔍 Finding your match...</h3>
-                <p className="text-gray-600 mb-6 text-sm">✨ Connecting you with another student right now!</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Finding your match...</h3>
+                <p className="text-gray-600 mb-6 text-sm">Connecting you with another student right now!</p>
                 <div className="flex items-center justify-center space-x-2">
                   <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
@@ -287,16 +289,16 @@ export default function SimpleChat() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">🎯 Connect Instantly</h3>
-                <p className="text-gray-600 mb-8 leading-relaxed">🎓 Start an anonymous conversation with a random Filipino college student. Share experiences, get help, or just have fun! 🎉</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Instantly</h3>
+                <p className="text-gray-600 mb-8 leading-relaxed">Start an anonymous conversation with a random Filipino college student. Share experiences, get help, or just have fun!</p>
                 <Button 
                   onClick={startChat} 
                   className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   disabled={isLookingForMatch}
                 >
-                  🚀 Start Random Chat
+                  Start Random Chat
                 </Button>
-                <p className="text-xs text-gray-500 mt-4">🔒 Anonymous • 🛡️ Secure • ⚡ Instant</p>
+                <p className="text-xs text-gray-500 mt-4">Anonymous • Secure • Instant</p>
               </div>
             )}
           </div>
