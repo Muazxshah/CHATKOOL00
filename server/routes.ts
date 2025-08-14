@@ -96,10 +96,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const userData = userEntrySchema.parse(message);
             ws.username = userData.username;
             
+            // Remove any existing connection for this username
+            const existingWs = activeConnections.get(userData.username);
+            if (existingWs && existingWs !== ws) {
+              existingWs.close();
+            }
+            
             // Store connection for notifications
             activeConnections.set(userData.username, ws);
             
             await storage.addOnlineUser(userData.username);
+            console.log(`User ${userData.username} connected via WebSocket`);
             ws.send(JSON.stringify({ type: 'username_set', username: userData.username }));
           } catch (error) {
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid username' }));
@@ -147,10 +154,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
 
     ws.on('close', async () => {
-      console.log('WebSocket connection closed');
+      console.log('WebSocket connection closed for user:', ws.username);
       if (ws.username) {
-        await storage.removeOnlineUser(ws.username);
         activeConnections.delete(ws.username);
+        await storage.removeOnlineUser(ws.username);
       }
     });
   });
