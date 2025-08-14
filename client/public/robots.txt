@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /chat
+
+Sitemap: https://chatkool.com/sitemap.xml
+
+# Keywords: chatkool, chatcool, online chat, chat online, chat with strangers
+# Description: Anonymous online chat platform for Filipino college students

@@ -1,6 +1,6 @@
 # Overview
 
-ChatKOOL is a real-time chat application designed for university students. It provides both university-specific chat rooms and study groups to facilitate academic collaboration and community building. The application features user authentication, real-time messaging via WebSocket connections, and a responsive web interface built with modern React patterns.
+ChatKOOL is an anonymous online chat platform specifically designed for Filipino college students. It provides instant random 1-on-1 connections without authentication barriers, allowing students to chat with strangers safely and anonymously. The platform features real-time messaging via WebSocket connections, comprehensive SEO optimization targeting keywords like "chatkool", "chatcool", "online chat", "chat online", and "chat with strangers", and a responsive web interface built with modern React patterns.
 
 # User Preferences
 
@@ -24,22 +24,23 @@ Preferred communication style: Simple, everyday language.
 - **Drizzle ORM** configured for PostgreSQL with schema-first approach
 
 ## Data Storage Design
-- **PostgreSQL** configured via Drizzle ORM with connection to Neon serverless database
+- **In-memory storage** for development with random chat matching system
 - **Schema-driven development** with shared types between frontend and backend
-- **Database tables**: users, chat_rooms, messages, room_members
-- **Fallback in-memory storage** for development/testing environments
+- **Random matching algorithm** connecting users instantly for 1-on-1 conversations
+- **Temporary chat sessions** without persistent user accounts or registration
 
-## Authentication & Authorization
-- **JWT tokens** with 7-day expiration for session management
-- **Password hashing** using bcryptjs
-- **Route protection** on both client and server sides
-- **WebSocket authentication** via token-based connection upgrade
+## Anonymous Chat System
+- **No authentication required** - completely anonymous access
+- **Username-only identification** for chat sessions
+- **No registration barriers** to prevent user bouncing
+- **Instant access** to chat functionality without sign-up
 
 ## Real-time Communication
-- **WebSocket connections** for live chat messaging
-- **Room-based messaging** with join/leave functionality
-- **Message persistence** with user association
+- **WebSocket connections** for live 1-on-1 chat messaging
+- **Random matching system** connecting strangers instantly
+- **Temporary chat sessions** without message persistence
 - **Connection state management** with automatic reconnection handling
+- **"New Chat" functionality** to start fresh conversations
 
 ## Development & Build Process
 - **ESM modules** throughout the entire stack
@@ -50,10 +51,34 @@ Preferred communication style: Simple, everyday language.
 
 ## External Dependencies
 
-- **@neondatabase/serverless**: Serverless PostgreSQL database connection
-- **Drizzle Kit**: Database migration and schema management tools
 - **Radix UI Primitives**: Accessible component foundations for the design system
 - **Tailwind CSS**: Utility-first CSS framework for styling
-- **WebSocket (ws)**: Real-time bidirectional communication
-- **JWT & bcryptjs**: Authentication and security libraries
+- **WebSocket (ws)**: Real-time bidirectional communication for anonymous chat
 - **Vite Plugins**: Development tooling including Replit-specific integrations
+
+## SEO Optimization (Added January 2024)
+
+### Target Keywords
+- **Primary**: chatkool, chatcool, online chat, chat online, chat with strangers
+- **Secondary**: anonymous chat, filipino chat, college students chat, university chat, philippines chat
+
+### Technical SEO Implementation
+- **Meta tags**: Comprehensive title, description, keywords, robots directives
+- **Open Graph**: Facebook and Twitter card optimizations
+- **Structured Data**: Schema.org WebApplication markup for semantic SEO
+- **Sitemap**: XML sitemap with all important pages
+- **Robots.txt**: Proper crawler directives with sitemap reference
+- **Canonical URLs**: Proper canonicalization to prevent duplicate content
+
+### On-Page SEO Features
+- **Keyword-rich content**: Natural integration of target keywords throughout homepage
+- **Header tags hierarchy**: Proper H1, H2, H3 structure with keyword targeting
+- **Internal linking**: SEO-friendly navigation with keyword-rich anchor text
+- **Alt text optimization**: Descriptive alt attributes for images
+- **Performance optimization**: Fast loading times and mobile responsiveness
+
+### Content Strategy
+- **HomePage focus**: Primary landing page optimized for all target keywords
+- **Filipino student targeting**: Content specifically tailored for Philippines market
+- **Anonymous chat emphasis**: Strong focus on privacy and no-registration benefits
+- **User experience**: Clear value propositions and multiple call-to-action buttons
