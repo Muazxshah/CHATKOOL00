@@ -12,8 +12,8 @@ export function useWebSocket(roomId?: string, username?: string) {
   }, [roomId]);
 
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    // Handle custom domain and deployment URLs
+    // Force WSS for custom domains to handle SSL properly
+    const protocol = (window.location.protocol === "https:" || window.location.host.includes('chatkool.net')) ? "wss:" : "ws:";
     const host = window.location.host;
     const wsUrl = `${protocol}//${host}/ws`;
     

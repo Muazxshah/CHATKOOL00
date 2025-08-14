@@ -12,11 +12,18 @@
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     
     <!-- Canonical URL for SEO -->
-    <link rel="canonical" href="https://chatkool.com/" />
+    <link rel="canonical" href="https://chatkool.net/" />
+    
+    <!-- Force HTTPS for custom domain only -->
+    <script>
+      if (location.hostname === 'chatkool.net' && location.protocol !== 'https:') {
+        location.replace('https:' + window.location.href.substring(window.location.protocol.length));
+      }
+    </script>
     
     <!-- Open Graph / Facebook Meta Tags -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://chatkool.com/" />
+    <meta property="og:url" content="https://chatkool.net/" />
     <meta property="og:title" content="ChatKOOL - Anonymous Online Chat | Chat with Strangers" />
     <meta property="og:description" content="Connect instantly with Filipino college students through anonymous online chat. Chat with strangers safely, no registration required. Join the premier Filipino student community." />
     <meta property="og:image" content="https://chatkool.com/og-image.jpg" />
@@ -26,7 +33,7 @@
     
     <!-- Twitter Card Meta Tags -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://chatkool.com/" />
+    <meta property="twitter:url" content="https://chatkool.net/" />
     <meta property="twitter:title" content="ChatKOOL - Anonymous Online Chat | Chat with Strangers" />
     <meta property="twitter:description" content="Connect instantly with Filipino college students through anonymous online chat. No registration required." />
     <meta property="twitter:image" content="https://chatkool.com/og-image.jpg" />
