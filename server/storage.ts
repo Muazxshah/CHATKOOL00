@@ -57,7 +57,7 @@ export class MemStorage implements IStorage {
       const room: ChatRoom = {
         id: randomUUID(),
         name: roomData.name,
-        description: roomData.description,
+        description: roomData.description ?? null,
         type: roomData.type,
         university: roomData.university,
         memberCount: 0,

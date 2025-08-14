@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ChatMessages from "@/components/chat-messages";
 import MessageInput from "@/components/message-input";
@@ -14,6 +14,7 @@ export default function Chat() {
   const [matchedUser, setMatchedUser] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const queryClient = useQueryClient();
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { messages, sendMessage, isConnected } = useWebSocket(currentRoom?.id || undefined, username || undefined);
 
@@ -26,9 +27,45 @@ export default function Chat() {
         setCurrentRoom(data.room);
         setMatchedUser(data.matchedUser);
         setIsSearching(false);
+      } else {
+        // If no match, start polling for matches
+        if (username) {
+          startPollingForMatches(username);
+        }
       }
     }
   });
+
+  const startPollingForMatches = (username: string) => {
+    // Clear any existing polling
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await apiRequest('/api/random-chat', 'POST', { username }) as any;
+        if (response.matched) {
+          setCurrentRoom(response.room);
+          setMatchedUser(response.matchedUser);
+          setIsSearching(false);
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+          }
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+
+    // Stop polling after 60 seconds
+    setTimeout(() => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+      setIsSearching(false);
+    }, 60000);
+  };
 
   const handleUsernameSubmit = (userData: UserEntry) => {
     setUsername(userData.username);
@@ -46,6 +83,10 @@ export default function Chat() {
   };
 
   const startNewChat = () => {
+    // Clear any active polling
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
     setCurrentRoom(null);
     setMatchedUser(null);
     setIsSearching(false);
