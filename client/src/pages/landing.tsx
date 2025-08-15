@@ -108,7 +108,7 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-32 pb-20 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 sm:pt-32 pb-12 sm:pb-20 overflow-hidden min-h-screen flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -116,32 +116,32 @@ export default function Landing() {
           <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center">
-            <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-8 leading-tight tracking-tight" data-testid="hero-title">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 relative z-10 w-full">
+          <div className="text-center px-4">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
               <span className="block">CHAT</span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 animate-pulse">
                 KOOL
               </span>
             </h1>
-            <p className="text-2xl md:text-3xl text-blue-600 mb-6 font-bold tracking-wide" data-testid="hero-tagline">
+            <p className="text-lg sm:text-2xl md:text-3xl text-blue-600 mb-4 sm:mb-6 font-bold tracking-wide px-2" data-testid="hero-tagline">
               ANONYMOUS ONLINE CHAT | CHAT WITH STRANGERS
             </p>
-            <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed" data-testid="hero-description">
+            <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4" data-testid="hero-description">
               ChatKOOL - Connect instantly with Filipino college students through anonymous online chat. 
               Chat with strangers safely, share experiences, get academic help, and make friends. 
               No registration required - completely anonymous and free online chat platform.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16 px-4">
               <Button 
                 onClick={() => setLocation('/chat')}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-16 py-6 text-2xl font-black rounded-full shadow-2xl transition-all duration-300 hover:shadow-orange-500/25 hover:scale-105"
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 sm:px-16 py-4 sm:py-6 text-lg sm:text-2xl font-black rounded-full shadow-2xl transition-all duration-300 hover:shadow-orange-500/25 hover:scale-105 w-full sm:w-auto"
                 data-testid="button-start-chatting"
               >
                 🚀 START CHATTING NOW
               </Button>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 px-4">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                 <span>No signup required for online chat</span>

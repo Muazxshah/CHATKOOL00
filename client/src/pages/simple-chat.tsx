@@ -142,27 +142,27 @@ export default function SimpleChat() {
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
       {/* Premium Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4 shadow-sm">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation('/')}>
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-200">
-              <span className="text-white font-bold text-lg">C</span>
+          <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation('/')}>
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-200">
+              <span className="text-white font-bold text-sm sm:text-lg">C</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900 text-lg hover:text-purple-600 transition-colors duration-200">ChatKOOL</h1>
-              <p className="text-xs text-gray-500">Connect with students</p>
+              <h1 className="font-bold text-gray-900 text-base sm:text-lg hover:text-purple-600 transition-colors duration-200">ChatKOOL</h1>
+              <p className="text-xs text-gray-500 hidden sm:block">Connect with students</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 bg-green-50 px-3 py-1.5 rounded-full">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2 bg-green-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-green-700">{username}</span>
+              <span className="text-xs sm:text-sm font-medium text-green-700">{username}</span>
             </div>
             {currentRoom && (
               <Button 
                 onClick={startNewChat} 
                 size="sm"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4"
               >
                 New Chat
               </Button>
@@ -175,7 +175,7 @@ export default function SimpleChat() {
       {currentRoom && matchedUser ? (
         <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
           {/* Chat Header - Compact Premium */}
-          <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-6 py-3 mx-4 mt-4 rounded-t-xl shadow-sm">
+          <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 py-3 mx-2 sm:mx-4 mt-2 sm:mt-4 rounded-t-xl shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
@@ -191,7 +191,7 @@ export default function SimpleChat() {
           </div>
 
           {/* Messages - Compact Design */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 mx-4 bg-white/50 backdrop-blur-sm space-y-3">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 mx-2 sm:mx-4 bg-white/50 backdrop-blur-sm space-y-3">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
@@ -210,20 +210,20 @@ export default function SimpleChat() {
                   key={msg.id}
                   className={`flex ${msg.username === username ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex items-end space-x-2 max-w-xs ${msg.username === username ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                  <div className={`flex items-end space-x-2 max-w-xs sm:max-w-sm ${msg.username === username ? 'flex-row-reverse space-x-reverse' : ''}`}>
                     {msg.username !== username && (
                       <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex-shrink-0 flex items-center justify-center">
                         <span className="text-white text-xs font-medium">{msg.username.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
                     <div
-                      className={`px-4 py-2.5 rounded-2xl shadow-sm ${
+                      className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-sm ${
                         msg.username === username
                           ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                           : 'bg-white text-gray-900 border border-gray-200'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                      <p className="text-xs sm:text-sm leading-relaxed break-words">{msg.content}</p>
                     </div>
                   </div>
                 </div>
@@ -232,12 +232,12 @@ export default function SimpleChat() {
           </div>
 
           {/* Message Input - Premium Compact */}
-          <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-6 py-4 mx-4 mb-4 rounded-b-xl shadow-sm">
-            <div className="flex space-x-3">
+          <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4 mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-b-xl shadow-sm">
+            <div className="flex space-x-2 sm:space-x-3">
               <Button 
                 onClick={startNewChat}
                 variant="outline"
-                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-xl px-4"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-xl px-2 sm:px-4 text-xs sm:text-sm"
               >
                 End Chat
               </Button>
@@ -254,9 +254,9 @@ export default function SimpleChat() {
               />
               <Button 
                 onClick={sendMessage}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-3 sm:px-6 shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
               </Button>
