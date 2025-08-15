@@ -80,7 +80,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden max-w-full">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,15 +108,15 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 sm:pt-32 pb-12 sm:pb-20 overflow-hidden min-h-screen flex items-center">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-          <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 sm:pt-32 pb-12 sm:pb-20 overflow-hidden min-h-screen flex items-center max-w-full">
+        {/* Animated Background Elements - Mobile Safe */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-4 sm:left-10 w-32 h-32 sm:w-64 sm:h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute top-40 right-4 sm:right-20 w-36 h-36 sm:w-72 sm:h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-20 left-1/4 w-40 h-40 sm:w-80 sm:h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 relative z-10 w-full">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 relative z-10 w-full overflow-hidden">
           <div className="text-center px-4">
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
               <span className="block">CHAT</span>
