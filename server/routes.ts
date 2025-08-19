@@ -182,6 +182,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     ws.on('close', async () => {
       console.log('WebSocket connection closed for user:', ws.username);
       if (ws.username) {
+        // If user was in a chat room, notify other users in that room
+        if (ws.roomId) {
+          console.log(`User ${ws.username} disconnected from room ${ws.roomId}`);
+          
+          // Notify all other users in the same room that this user left
+          wss.clients.forEach((client: ChatWebSocket) => {
+            if (client.readyState === WebSocket.OPEN && 
+                client.roomId === ws.roomId && 
+                client.username !== ws.username) {
+              client.send(JSON.stringify({
+                type: 'chat_ended',
+                message: `${ws.username} has disconnected`,
+                leftUser: ws.username
+              }));
+              // Clear the other user's room so they can start a new chat
+              client.roomId = undefined;
+            }
+          });
+        }
+        
         activeConnections.delete(ws.username);
         await storage.removeOnlineUser(ws.username);
       }
