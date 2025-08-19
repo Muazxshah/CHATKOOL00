@@ -38,10 +38,14 @@ export default function SimpleChat() {
           type: 'set_username',
           username: username
         }));
-        socket.send(JSON.stringify({
-          type: 'join_room',
-          roomId: currentRoom.id
-        }));
+        // Delay joining room slightly to ensure username is set first
+        setTimeout(() => {
+          console.log('Joining room:', currentRoom.id);
+          socket.send(JSON.stringify({
+            type: 'join_room',
+            roomId: currentRoom.id
+          }));
+        }, 100);
       };
 
       socket.onmessage = (event) => {
@@ -55,14 +59,18 @@ export default function SimpleChat() {
           // Add system message
           setMessages(prev => [...prev, {
             id: 'system-' + Date.now(),
-            content: data.message,
+            content: 'OTHER USER ENDED THE CHAT',
             username: 'System',
             createdAt: new Date().toISOString()
           }]);
-          // Reset chat after 2 seconds so user can see the message
+          // Reset chat after 3 seconds so user can see the message
           setTimeout(() => {
             startNewChat();
-          }, 2000);
+          }, 3000);
+        } else if (data.type === 'username_set') {
+          console.log('Username set on WebSocket');
+        } else if (data.type === 'joined_room') {
+          console.log('Successfully joined room:', data.roomId);
         }
       };
 
