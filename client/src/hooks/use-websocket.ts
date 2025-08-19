@@ -8,6 +8,7 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
   const currentRoomRef = useRef<string | undefined>(roomId);
 
   useEffect(() => {
+    console.log('Room ID changed in useWebSocket:', roomId);
     currentRoomRef.current = roomId;
   }, [roomId]);
 
@@ -43,11 +44,11 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
         case 'username_set':
           console.log('Username set:', data.username);
           // Join the current room if one is selected
-          if (roomId) {
-            console.log('Auto-joining room after username set:', roomId);
+          if (currentRoomRef.current) {
+            console.log('Auto-joining room after username set:', currentRoomRef.current);
             ws.send(JSON.stringify({
               type: 'join_room',
-              roomId: roomId
+              roomId: currentRoomRef.current
             }));
           }
           break;
@@ -123,34 +124,37 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
 
   // Join room when roomId changes  
   useEffect(() => {
+    console.log('useEffect triggered for roomId change:', roomId, 'WebSocket ready:', wsRef.current?.readyState === WebSocket.OPEN);
+    
     if (wsRef.current?.readyState === WebSocket.OPEN && roomId) {
-      console.log('Joining room via WebSocket:', roomId);
+      console.log('Joining room immediately via WebSocket:', roomId);
       setMessages([]); // Clear messages when switching rooms
       wsRef.current.send(JSON.stringify({
         type: 'join_room',
         roomId: roomId
       }));
     } else if (roomId) {
-      console.log('WebSocket not ready yet, roomId:', roomId, 'readyState:', wsRef.current?.readyState);
+      console.log('WebSocket not ready yet, will retry. roomId:', roomId, 'readyState:', wsRef.current?.readyState);
       // If WebSocket isn't ready but we have a roomId, wait for connection
-      const checkAndJoin = () => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds total
+      
+      const interval = setInterval(() => {
+        attempts++;
+        console.log(`Attempt ${attempts} to join room ${roomId}`);
+        
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           console.log('WebSocket now ready, joining room:', roomId);
           wsRef.current.send(JSON.stringify({
             type: 'join_room', 
             roomId: roomId
           }));
-        }
-      };
-      // Check every 100ms for up to 5 seconds
-      const interval = setInterval(() => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          checkAndJoin();
+          clearInterval(interval);
+        } else if (attempts >= maxAttempts) {
+          console.log('Failed to join room after maximum attempts');
           clearInterval(interval);
         }
       }, 100);
-      // Clear interval after 5 seconds
-      setTimeout(() => clearInterval(interval), 5000);
     }
   }, [roomId]);
 
