@@ -9,74 +9,9 @@ export default function Landing() {
     // Comprehensive SEO optimization
     document.title = "ChatKOOL - Anonymous Online Chat | Chat with Strangers | Filipino Students";
     
-    // Primary meta description targeting all keywords
-    const metaDescription = document.querySelector('meta[name="description"]');
-    const descriptionContent = 'ChatKOOL - Premier anonymous online chat platform for Filipino college students. Chat with strangers instantly, no signup required. Connect with fellow students through secure anonymous chat across the Philippines.';
-    if (metaDescription) {
-      metaDescription.setAttribute('content', descriptionContent);
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'description';
-      meta.content = descriptionContent;
-      document.head.appendChild(meta);
-    }
+    // Remove dynamic meta tag manipulation since they're now static in HTML
 
-    // Keywords meta tag for semantic SEO
-    const metaKeywords = document.querySelector('meta[name="keywords"]');
-    const keywordsContent = 'chatkool, chatcool, online chat, chat online, chat with strangers, anonymous chat, filipino chat, college students chat, university chat, philippines chat, student community, random chat';
-    if (metaKeywords) {
-      metaKeywords.setAttribute('content', keywordsContent);
-    } else {
-      const keywords = document.createElement('meta');
-      keywords.name = 'keywords';
-      keywords.content = keywordsContent;
-      document.head.appendChild(keywords);
-    }
-
-    // Add canonical URL
-    const existingCanonical = document.querySelector('link[rel="canonical"]');
-    if (!existingCanonical) {
-      const canonical = document.createElement('link');
-      canonical.rel = 'canonical';
-      canonical.href = window.location.origin + '/';
-      document.head.appendChild(canonical);
-    }
-
-    // Add structured data for better semantic SEO
-    const existingStructuredData = document.querySelector('script[type="application/ld+json"]');
-    if (!existingStructuredData) {
-      const structuredData = document.createElement('script');
-      structuredData.type = 'application/ld+json';
-      structuredData.textContent = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "ChatKOOL",
-        "alternateName": ["ChatCool", "Chat Kool", "Chat Cool"],
-        "url": window.location.origin,
-        "description": "Anonymous online chat platform for Filipino college and university students. Chat with strangers instantly, no registration required.",
-        "applicationCategory": "SocialNetworkingApplication",
-        "operatingSystem": "Web Browser",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "audience": {
-          "@type": "Audience",
-          "audienceType": "Filipino college students"
-        },
-        "inLanguage": "en-PH",
-        "featureList": [
-          "Anonymous chat with strangers",
-          "Instant online chat matching",
-          "No registration required",
-          "Filipino student community",
-          "Safe chat environment",
-          "24/7 chat availability"
-        ]
-      });
-      document.head.appendChild(structuredData);
-    }
+    // Remove redundant canonical URL and structured data since they're now in HTML head
   }, []);
 
   return (
@@ -125,12 +60,12 @@ export default function Landing() {
               </span>
             </h1>
             <p className="text-lg sm:text-2xl md:text-3xl text-blue-600 mb-4 sm:mb-6 font-bold tracking-wide px-2" data-testid="hero-tagline">
-              ANONYMOUS ONLINE CHAT | CHAT WITH STRANGERS
+              ANONYMOUS CHAT FOR FILIPINO STUDENTS
             </p>
             <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4" data-testid="hero-description">
-              ChatKOOL - Connect instantly with Filipino college students through anonymous online chat. 
-              Chat with strangers safely, share experiences, get academic help, and make friends. 
-              No registration required - completely anonymous and free online chat platform.
+              Connect instantly with fellow Filipino college students in a safe, anonymous environment. 
+              Share experiences, get academic help, and make meaningful connections. 
+              No registration required - completely free and private.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16 px-4">
               <Button 
@@ -144,19 +79,19 @@ export default function Landing() {
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 px-4">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span>No signup required for online chat</span>
+                <span>No signup required</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                <span>100% Anonymous chat with strangers</span>
+                <span>100% Anonymous & safe</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-                <span>Instant online chat connection</span>
+                <span>Instant connections</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                <span>ChatCool for Filipino students</span>
+                <span>Filipino student community</span>
               </div>
             </div>
           </div>
@@ -167,10 +102,10 @@ export default function Landing() {
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose ChatKOOL for Online Chat with Strangers</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose ChatKOOL</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join thousands of Filipino college students who trust ChatKOOL for anonymous online chat, 
-              authentic connections, and meaningful conversations with strangers
+              Join thousands of Filipino college students who trust ChatKOOL for anonymous connections, 
+              authentic conversations, and meaningful student community experiences
             </p>
           </div>
 
@@ -181,10 +116,10 @@ export default function Landing() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">100% Anonymous Online Chat</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">100% Anonymous & Secure</h3>
               <p className="text-gray-600">
-                Chat with strangers freely without revealing your identity. Share your thoughts, experiences, and questions 
-                through secure anonymous online chat without judgment.
+                Share your thoughts and experiences freely without revealing your identity. 
+                Connect with fellow students in a secure, judgment-free environment.
               </p>
             </div>
 
@@ -194,10 +129,10 @@ export default function Landing() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Instant Chat Online</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Instant Connections</h3>
               <p className="text-gray-600">
-                Chat online instantly with another Filipino college student. Get matched in seconds to chat with strangers. 
-                No waiting, no barriers, just instant online chat conversations.
+                Get matched in seconds with another Filipino college student. 
+                No waiting, no barriers, just instant meaningful conversations.
               </p>
             </div>
 
