@@ -53,6 +53,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const matchedUserWs = activeConnections.get(matchedUser);
         
         if (currentUserWs) {
+          currentUserWs.roomId = room.id; // Set room ID on WebSocket
           currentUserWs.send(JSON.stringify({
             type: 'match_found',
             room,
@@ -61,6 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         if (matchedUserWs) {
+          matchedUserWs.roomId = room.id; // Set room ID on WebSocket
           matchedUserWs.send(JSON.stringify({
             type: 'match_found',
             room,

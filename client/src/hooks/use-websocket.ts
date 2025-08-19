@@ -85,10 +85,14 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
             createdAt: new Date(),
             user: { username: 'System' }
           }]);
-          // Trigger callback to reset chat state
-          if (onMatchFound) {
-            onMatchFound({ room: null, matchedUser: null });
-          }
+          // Clear the current room reference
+          currentRoomRef.current = undefined;
+          // Trigger callback to reset chat state after a short delay so user can see the message
+          setTimeout(() => {
+            if (onMatchFound) {
+              onMatchFound({ room: null, matchedUser: null });
+            }
+          }, 2000);
           break;
           
         case 'chat_ended_confirmed':
