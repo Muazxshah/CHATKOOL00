@@ -43,11 +43,11 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
         case 'username_set':
           console.log('Username set:', data.username);
           // Join the current room if one is selected
-          if (currentRoomRef.current) {
-            console.log('Auto-joining room after username set:', currentRoomRef.current);
+          if (roomId) {
+            console.log('Auto-joining room after username set:', roomId);
             ws.send(JSON.stringify({
               type: 'join_room',
-              roomId: currentRoomRef.current
+              roomId: roomId
             }));
           }
           break;
@@ -121,7 +121,7 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
     };
   }, [username]); // Remove onMatchFound from dependencies to prevent reconnections
 
-  // Join room when roomId changes
+  // Join room when roomId changes  
   useEffect(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN && roomId) {
       console.log('Joining room via WebSocket:', roomId);
@@ -132,6 +132,25 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
       }));
     } else if (roomId) {
       console.log('WebSocket not ready yet, roomId:', roomId, 'readyState:', wsRef.current?.readyState);
+      // If WebSocket isn't ready but we have a roomId, wait for connection
+      const checkAndJoin = () => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          console.log('WebSocket now ready, joining room:', roomId);
+          wsRef.current.send(JSON.stringify({
+            type: 'join_room', 
+            roomId: roomId
+          }));
+        }
+      };
+      // Check every 100ms for up to 5 seconds
+      const interval = setInterval(() => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          checkAndJoin();
+          clearInterval(interval);
+        }
+      }, 100);
+      // Clear interval after 5 seconds
+      setTimeout(() => clearInterval(interval), 5000);
     }
   }, [roomId]);
 
