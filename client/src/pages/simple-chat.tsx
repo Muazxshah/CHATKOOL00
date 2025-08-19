@@ -46,8 +46,23 @@ export default function SimpleChat() {
 
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        console.log('WebSocket message received:', data);
+        
         if (data.type === 'new_message') {
           setMessages(prev => [...prev, data.message]);
+        } else if (data.type === 'chat_ended') {
+          console.log('Chat ended by other user:', data.message);
+          // Add system message
+          setMessages(prev => [...prev, {
+            id: 'system-' + Date.now(),
+            content: data.message,
+            username: 'System',
+            createdAt: new Date().toISOString()
+          }]);
+          // Reset chat after 2 seconds so user can see the message
+          setTimeout(() => {
+            startNewChat();
+          }, 2000);
         }
       };
 
@@ -108,7 +123,21 @@ export default function SimpleChat() {
     }
   };
 
+  const endChat = () => {
+    if (ws) {
+      console.log('Sending end_chat message');
+      ws.send(JSON.stringify({
+        type: 'end_chat'
+      }));
+    }
+  };
+
   const startNewChat = () => {
+    // If we're in an active chat, notify the server we're ending it
+    if (currentRoom && ws) {
+      endChat();
+    }
+    
     if (pollRef.current) {
       clearInterval(pollRef.current);
       pollRef.current = null;
@@ -208,24 +237,30 @@ export default function SimpleChat() {
               messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.username === username ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${msg.username === username ? 'justify-end' : msg.username === 'System' ? 'justify-center' : 'justify-start'}`}
                 >
-                  <div className={`flex items-end space-x-2 max-w-xs sm:max-w-sm ${msg.username === username ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    {msg.username !== username && (
-                      <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex-shrink-0 flex items-center justify-center">
-                        <span className="text-white text-xs font-medium">{msg.username.charAt(0).toUpperCase()}</span>
-                      </div>
-                    )}
-                    <div
-                      className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-sm ${
-                        msg.username === username
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                          : 'bg-white text-gray-900 border border-gray-200'
-                      }`}
-                    >
-                      <p className="text-xs sm:text-sm leading-relaxed break-words">{msg.content}</p>
+                  {msg.username === 'System' ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mb-2">
+                      <p className="text-sm text-yellow-800 text-center font-medium">{msg.content}</p>
                     </div>
-                  </div>
+                  ) : (
+                    <div className={`flex items-end space-x-2 max-w-xs sm:max-w-sm ${msg.username === username ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      {msg.username !== username && (
+                        <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                          <span className="text-white text-xs font-medium">{msg.username.charAt(0).toUpperCase()}</span>
+                        </div>
+                      )}
+                      <div
+                        className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-sm ${
+                          msg.username === username
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                            : 'bg-white text-gray-900 border border-gray-200'
+                        }`}
+                      >
+                        <p className="text-xs sm:text-sm leading-relaxed break-words">{msg.content}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             )}
