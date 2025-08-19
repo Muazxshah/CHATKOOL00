@@ -53,7 +53,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const matchedUserWs = activeConnections.get(matchedUser);
         
         if (currentUserWs) {
-          currentUserWs.roomId = room.id; // Set room ID on WebSocket
           currentUserWs.send(JSON.stringify({
             type: 'match_found',
             room,
@@ -62,7 +61,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         if (matchedUserWs) {
-          matchedUserWs.roomId = room.id; // Set room ID on WebSocket
           matchedUserWs.send(JSON.stringify({
             type: 'match_found',
             room,
@@ -117,6 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Join a room
           if (ws.username) {
             ws.roomId = message.roomId;
+            console.log(`User ${ws.username} joined room ${message.roomId}`);
             ws.send(JSON.stringify({ type: 'joined_room', roomId: message.roomId }));
           } else {
             ws.send(JSON.stringify({ type: 'error', message: 'Username required' }));
@@ -186,13 +185,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (ws.username) {
         // If user was in a chat room, notify other users in that room
         if (ws.roomId) {
-          console.log(`User ${ws.username} disconnected from room ${ws.roomId}`);
+          console.log(`User ${ws.username} disconnected from room ${ws.roomId} - notifying other users`);
           
+          let notifiedUsers = 0;
           // Notify all other users in the same room that this user left
           wss.clients.forEach((client: ChatWebSocket) => {
             if (client.readyState === WebSocket.OPEN && 
                 client.roomId === ws.roomId && 
                 client.username !== ws.username) {
+              console.log(`Notifying ${client.username} that ${ws.username} disconnected`);
               client.send(JSON.stringify({
                 type: 'chat_ended',
                 message: `${ws.username} has disconnected`,
@@ -200,8 +201,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }));
               // Clear the other user's room so they can start a new chat
               client.roomId = undefined;
+              notifiedUsers++;
             }
           });
+          console.log(`Notified ${notifiedUsers} users about ${ws.username} disconnecting`);
+        } else {
+          console.log(`User ${ws.username} disconnected but was not in any room`);
         }
         
         activeConnections.delete(ws.username);

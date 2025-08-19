@@ -44,6 +44,7 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
           console.log('Username set:', data.username);
           // Join the current room if one is selected
           if (currentRoomRef.current) {
+            console.log('Auto-joining room after username set:', currentRoomRef.current);
             ws.send(JSON.stringify({
               type: 'join_room',
               roomId: currentRoomRef.current
@@ -56,7 +57,7 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
           break;
           
         case 'joined_room':
-          console.log('Joined room:', data.roomId);
+          console.log('Successfully joined room:', data.roomId);
           // Clear messages when joining a new room
           if (data.roomId !== currentRoomRef.current) {
             setMessages([]);
@@ -123,11 +124,14 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
   // Join room when roomId changes
   useEffect(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN && roomId) {
+      console.log('Joining room via WebSocket:', roomId);
       setMessages([]); // Clear messages when switching rooms
       wsRef.current.send(JSON.stringify({
         type: 'join_room',
         roomId: roomId
       }));
+    } else if (roomId) {
+      console.log('WebSocket not ready yet, roomId:', roomId, 'readyState:', wsRef.current?.readyState);
     }
   }, [roomId]);
 
