@@ -59,7 +59,7 @@ export default function SimpleChat() {
           // Add system message
           setMessages(prev => [...prev, {
             id: 'system-' + Date.now(),
-            content: 'OTHER USER ENDED THE CHAT',
+            content: 'Your chat partner has left the conversation',
             username: 'System',
             createdAt: new Date().toISOString()
           }]);
