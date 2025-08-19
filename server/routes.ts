@@ -147,6 +147,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } else {
             ws.send(JSON.stringify({ type: 'error', message: 'Username and room required' }));
           }
+        } else if (message.type === 'end_chat') {
+          // Handle ending a chat - notify the other user
+          if (ws.username && ws.roomId) {
+            console.log(`User ${ws.username} ended chat in room ${ws.roomId}`);
+            
+            // Notify all other users in the same room that this user left
+            wss.clients.forEach((client: ChatWebSocket) => {
+              if (client.readyState === WebSocket.OPEN && 
+                  client.roomId === ws.roomId && 
+                  client.username !== ws.username) {
+                client.send(JSON.stringify({
+                  type: 'chat_ended',
+                  message: `${ws.username} has left the chat`,
+                  leftUser: ws.username
+                }));
+                // Clear the other user's room so they can start a new chat
+                client.roomId = undefined;
+              }
+            });
+            
+            // Clear this user's room
+            ws.roomId = undefined;
+            
+            // Confirm chat ended
+            ws.send(JSON.stringify({ type: 'chat_ended_confirmed' }));
+          }
         }
       } catch (error) {
         console.error('WebSocket message error:', error);

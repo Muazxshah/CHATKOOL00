@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { MessageWithUser } from "@shared/schema";
 
-export function useWebSocket(roomId?: string, username?: string, onMatchFound?: (match: { room: any; matchedUser: string }) => void) {
+export function useWebSocket(roomId?: string, username?: string, onMatchFound?: (match: { room: any; matchedUser: string | null }) => void) {
   const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
@@ -74,6 +74,27 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
           }
           break;
           
+        case 'chat_ended':
+          console.log('Chat ended by other user:', data.message);
+          // Add a system message to show the other user left
+          setMessages(prev => [...prev, {
+            id: 'system-' + Date.now(),
+            content: data.message,
+            username: 'System',
+            roomId: currentRoomRef.current || '',
+            createdAt: new Date(),
+            user: { username: 'System' }
+          }]);
+          // Trigger callback to reset chat state
+          if (onMatchFound) {
+            onMatchFound({ room: null, matchedUser: null });
+          }
+          break;
+          
+        case 'chat_ended_confirmed':
+          console.log('Chat ended confirmed');
+          break;
+          
         default:
           console.log('Unknown message type:', data.type);
       }
@@ -115,9 +136,18 @@ export function useWebSocket(roomId?: string, username?: string, onMatchFound?: 
     }
   };
 
+  const endChat = () => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'end_chat'
+      }));
+    }
+  };
+
   return {
     messages,
     sendMessage,
+    endChat,
     isConnected
   };
 }

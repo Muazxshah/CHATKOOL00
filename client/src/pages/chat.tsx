@@ -16,17 +16,25 @@ export default function Chat() {
   const queryClient = useQueryClient();
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleMatchFound = useCallback((match: { room: any; matchedUser: string }) => {
+  const handleMatchFound = useCallback((match: { room: any; matchedUser: string | null }) => {
     console.log('Match found via WebSocket!', match);
-    setCurrentRoom(match.room);
-    setIsLookingForMatch(false);
+    if (match.room === null || match.matchedUser === null) {
+      // Chat was ended by other user - reset state
+      setCurrentRoom(null);
+      setMatchedUser(null);
+      setIsLookingForMatch(false);
+    } else {
+      setCurrentRoom(match.room);
+      setMatchedUser(match.matchedUser);
+      setIsLookingForMatch(false);
+    }
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
     }
   }, []);
 
-  const { messages, sendMessage, isConnected } = useWebSocket(
+  const { messages, sendMessage, endChat, isConnected } = useWebSocket(
     currentRoom?.id || undefined, 
     username || undefined,
     handleMatchFound
@@ -117,6 +125,11 @@ export default function Chat() {
   };
 
   const startNewChat = () => {
+    // Notify the server and other user that we're ending the chat
+    if (currentRoom && endChat) {
+      endChat();
+    }
+    
     // Clear any active polling
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
