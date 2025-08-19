@@ -53,12 +53,12 @@ export default function Landing() {
         
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 relative z-10 w-full overflow-hidden">
           <div className="text-center px-4">
-            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
+            <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
               <span className="block">CHAT</span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 animate-pulse">
                 KOOL
               </span>
-            </h1>
+            </h2>
             <p className="text-lg sm:text-2xl md:text-3xl text-blue-600 mb-4 sm:mb-6 font-bold tracking-wide px-2" data-testid="hero-tagline">
               ANONYMOUS CHAT FOR FILIPINO STUDENTS
             </p>
