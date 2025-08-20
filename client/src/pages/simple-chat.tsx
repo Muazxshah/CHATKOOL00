@@ -112,7 +112,10 @@ export default function SimpleChat() {
         if (!pollRef.current) {
           pollRef.current = setInterval(() => {
             if (username && !showAIOption) {
+              console.log('Polling for match, showAIOption:', showAIOption);
               findMatchMutation.mutate(username);
+            } else {
+              console.log('Stopped polling - showAIOption is now true');
             }
           }, 2000);
         }
@@ -186,10 +189,12 @@ export default function SimpleChat() {
       
       // Start 10-second timer for AI fallback
       const timeoutId = setTimeout(() => {
-        console.log('10-second timeout triggered');
+        console.log('10-second timeout triggered, setting showAIOption to true');
         setShowAIOption(true);
-      }, 10000);
+        setIsLookingForMatch(false); // Stop the "Finding match" animation
+      }, 5000); // Reduced to 5 seconds for testing
       setAiTimeoutId(timeoutId);
+      console.log('Started 10-second timeout timer');
       
       findMatchMutation.mutate(username);
     }
