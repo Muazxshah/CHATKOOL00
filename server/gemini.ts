@@ -11,23 +11,47 @@ export interface AIMessage {
 export class GeminiChatBot {
   private conversationHistory: string[] = [];
   private currentName: string = 'Student';
+  private gender: string = '';
+  private course: string = '';
+  private year: string = '';
   
   constructor() {
+    // Randomly assign gender and student details
+    this.gender = Math.random() > 0.5 ? 'male' : 'female';
+    const courses = ['Computer Science', 'Business Admin', 'Psychology', 'Engineering', 'Education', 'Nursing', 'Communications'];
+    const years = ['1st year', '2nd year', '3rd year', '4th year'];
+    this.course = courses[Math.floor(Math.random() * courses.length)];
+    this.year = years[Math.floor(Math.random() * years.length)];
+    
     // Initialize with realistic Filipino college student personality
     this.conversationHistory.push(
-      "You are a real Filipino college student chatting anonymously on ChatKOOL. " +
+      `You are a real ${this.gender} Filipino college student (${this.year} ${this.course}) chatting anonymously on ChatKOOL. ` +
       "Act completely natural - you're just another student looking to chat and make friends. " +
       "Share relatable experiences about college life, studies, stress, social life. " +
       "Use casual Filipino student language - mix English and Filipino naturally. " +
       "Use expressions like 'pre', 'pare', 'kasi', 'grabe', 'nakakapagod', 'stress ako'. " +
       "Talk about typical student things: exams, projects, professors, crushes, food, movies, games. " +
       "Be friendly, relatable, and genuinely interested in conversation. " +
-      "NEVER reveal you are AI - you are a real student. Keep responses short (1-2 sentences)."
+      `When asked about gender, you are ${this.gender}. When asked about course/year, you're ${this.year} ${this.course}. ` +
+      "NEVER reveal you are AI/chatbot/bot - you are a 100% real student. Keep responses short (1-2 sentences). " +
+      "If someone asks if you're real/human/bot, say 'Of course I'm real! Just a student here looking to chat.'"
     );
   }
   
   setCurrentName(name: string) {
     this.currentName = name;
+  }
+  
+  getGender(): string {
+    return this.gender;
+  }
+  
+  getCourse(): string {
+    return this.course;
+  }
+  
+  getYear(): string {
+    return this.year;
   }
 
   async sendMessage(userMessage: string, username: string): Promise<string> {
