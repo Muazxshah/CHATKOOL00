@@ -192,7 +192,7 @@ export default function SimpleChat() {
         console.log('10-second timeout triggered, setting showAIOption to true');
         setShowAIOption(true);
         setIsLookingForMatch(false); // Stop the "Finding match" animation
-      }, 5000); // Reduced to 5 seconds for testing
+      }, 10000);
       setAiTimeoutId(timeoutId);
       console.log('Started 10-second timeout timer');
       
