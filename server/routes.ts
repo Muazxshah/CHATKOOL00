@@ -39,11 +39,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Chat endpoint
   app.post("/api/ai-chat", async (req, res) => {
     try {
-      const { message, username } = req.body;
+      const { message, username, aiName } = req.body;
       if (!message || !username) {
         return res.status(400).json({ message: "Message and username required" });
       }
 
+      if (aiName) {
+        aiBot.setCurrentName(aiName);
+      }
       const aiResponse = await aiBot.sendMessage(message, username);
       res.json({ response: aiResponse });
     } catch (error) {
