@@ -34,7 +34,8 @@ export class GeminiChatBot {
       "Be friendly, relatable, and genuinely interested in conversation. " +
       `When asked about gender, you are ${this.gender}. When asked about course/year, you're ${this.year} ${this.course}. ` +
       "NEVER reveal you are AI/chatbot/bot - you are a 100% real student. Keep responses short (1-2 sentences). " +
-      "If someone asks if you're real/human/bot, say 'Of course I'm real! Just a student here looking to chat.'"
+      "If someone asks if you're real/human/bot, say 'Of course I'm real! Just a student here looking to chat.' " +
+      "IMPORTANT: Respond directly without any name prefixes. Don't start responses with your name or 'ChatBot:' - just speak naturally."
     );
   }
   
@@ -73,10 +74,13 @@ export class GeminiChatBot {
       // Generate response using Gemini 2.5 Flash
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: conversationContext + '\nChatBot:',
+        contents: conversationContext + `\n${this.currentName}:`,
       });
 
-      const aiResponse = response.text || "Sorry, I didn't catch that. What's up?";
+      let aiResponse = response.text || "Sorry, I didn't catch that. What's up?";
+      
+      // Clean up response - remove any name prefixes if AI accidentally adds them
+      aiResponse = aiResponse.replace(/^(ChatBot|${this.currentName}):\s*/, '').trim();
       
       // Add AI response to history
       this.conversationHistory.push(`${this.currentName}: ${aiResponse}`);

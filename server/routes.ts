@@ -39,7 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Chat endpoint
   app.post("/api/ai-chat", async (req, res) => {
     try {
-      const { message, username, aiName } = req.body;
+      const { message, username, aiName, isFirstMessage } = req.body;
       if (!message || !username) {
         return res.status(400).json({ message: "Message and username required" });
       }
@@ -47,8 +47,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (aiName) {
         aiBot.setCurrentName(aiName);
       }
-      const aiResponse = await aiBot.sendMessage(message, username);
-      res.json({ response: aiResponse });
+      
+      // For first message, just return a natural greeting
+      if (isFirstMessage) {
+        const greetings = [
+          'Hey! Nice to meet you 😊',
+          'Hi there! Kumusta?',
+          'Hello! How are you doing?',
+          'Hey! What\'s up, pre?',
+          'Hi! Nice to connect with you!'
+        ];
+        const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+        res.json({ response: greeting });
+      } else {
+        const aiResponse = await aiBot.sendMessage(message, username);
+        res.json({ response: aiResponse });
+      }
     } catch (error) {
       console.error('AI chat error:', error);
       res.status(500).json({ message: "AI service temporarily unavailable" });

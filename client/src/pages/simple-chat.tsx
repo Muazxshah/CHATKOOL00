@@ -212,12 +212,30 @@ export default function SimpleChat() {
     setIsLookingForMatch(false);
     setMatchedUser(aiName);
     setCurrentRoom({ id: 'ai-chat-room', participants: [username, aiName] } as any);
-    setMessages([{
-      id: 'ai-welcome',
-      content: 'Hey! Nice to meet you 😊',
-      username: aiName,
-      createdAt: new Date().toISOString()
-    }]);
+    
+    // Set AI name on server and get a natural greeting
+    fetch('/api/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Hi', username, aiName, isFirstMessage: true })
+    })
+    .then(res => res.json())
+    .then(data => {
+      setMessages([{
+        id: 'ai-welcome',
+        content: data.response,
+        username: aiName,
+        createdAt: new Date().toISOString()
+      }]);
+    })
+    .catch(() => {
+      setMessages([{
+        id: 'ai-welcome',
+        content: 'Hey! Nice to meet you 😊',
+        username: aiName,
+        createdAt: new Date().toISOString()
+      }]);
+    });
     
     // Clear timers
     if (pollRef.current) {
