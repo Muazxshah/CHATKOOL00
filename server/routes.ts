@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertMessageSchema, userEntrySchema } from "@shared/schema";
+import { aiBot } from "./gemini";
 
 interface ChatWebSocket extends WebSocket {
   username?: string;
@@ -32,6 +33,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // AI Chat endpoint
+  app.post("/api/ai-chat", async (req, res) => {
+    try {
+      const { message, username } = req.body;
+      if (!message || !username) {
+        return res.status(400).json({ message: "Message and username required" });
+      }
+
+      const aiResponse = await aiBot.sendMessage(message, username);
+      res.json({ response: aiResponse });
+    } catch (error) {
+      console.error('AI chat error:', error);
+      res.status(500).json({ message: "AI service temporarily unavailable" });
     }
   });
 

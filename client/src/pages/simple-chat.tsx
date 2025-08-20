@@ -19,6 +19,9 @@ export default function SimpleChat() {
   const [username, setUsername] = useState<string | null>(null);
   const [matchedUser, setMatchedUser] = useState<string | null>(null);
   const [isLookingForMatch, setIsLookingForMatch] = useState(false);
+  const [showAIOption, setShowAIOption] = useState(false);
+  const [isAIChat, setIsAIChat] = useState(false);
+  const [aiTimeoutId, setAiTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [ws, setWs] = useState<WebSocket | null>(null);
@@ -93,15 +96,22 @@ export default function SimpleChat() {
         setCurrentRoom(data.room);
         setMatchedUser(data.matchedUser);
         setIsLookingForMatch(false);
+        setShowAIOption(false);
+        
+        // Clear timers
         if (pollRef.current) {
           clearInterval(pollRef.current);
           pollRef.current = null;
+        }
+        if (aiTimeoutId) {
+          clearTimeout(aiTimeoutId);
+          setAiTimeoutId(null);
         }
       } else {
         // Keep polling every 2 seconds
         if (!pollRef.current) {
           pollRef.current = setInterval(() => {
-            if (username) {
+            if (username && !showAIOption) {
               findMatchMutation.mutate(username);
             }
           }, 2000);
@@ -113,8 +123,52 @@ export default function SimpleChat() {
     }
   });
 
-  const sendMessage = () => {
-    if (ws && messageInput.trim() && currentRoom) {
+  const sendMessage = async () => {
+    if (!messageInput.trim() || !currentRoom) return;
+
+    if (isAIChat) {
+      // Handle AI Chat
+      const userMessage = {
+        id: Date.now().toString(),
+        content: messageInput.trim(),
+        username: username!,
+        createdAt: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      setMessageInput("");
+      
+      // Send to AI
+      try {
+        const response = await fetch('/api/ai-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: messageInput.trim(), username })
+        });
+        
+        const data = await response.json();
+        const aiMessage = {
+          id: Date.now().toString() + '-ai',
+          content: data.response,
+          username: 'ChatBot',
+          createdAt: new Date().toISOString()
+        };
+        
+        setTimeout(() => {
+          setMessages(prev => [...prev, aiMessage]);
+        }, 500); // Small delay for natural feel
+      } catch (error) {
+        console.error('AI chat error:', error);
+        const errorMessage = {
+          id: Date.now().toString() + '-error',
+          content: 'Sorry, I\'m having trouble responding right now. Try again!',
+          username: 'ChatBot',
+          createdAt: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } else if (ws) {
+      // Handle Human Chat
       ws.send(JSON.stringify({
         type: 'chat_message',
         content: messageInput.trim()
@@ -127,6 +181,17 @@ export default function SimpleChat() {
     if (username) {
       setIsLookingForMatch(true);
       setMessages([]);
+      setShowAIOption(false);
+      setIsAIChat(false);
+      
+      // Start 10-second timer for AI fallback
+      const timeoutId = setTimeout(() => {
+        if (isLookingForMatch && !currentRoom) {
+          setShowAIOption(true);
+        }
+      }, 10000);
+      setAiTimeoutId(timeoutId);
+      
       findMatchMutation.mutate(username);
     }
   };
@@ -140,15 +205,43 @@ export default function SimpleChat() {
     }
   };
 
+  const startAIChat = () => {
+    setIsAIChat(true);
+    setIsLookingForMatch(false);
+    setShowAIOption(false);
+    setMatchedUser('ChatBot');
+    setCurrentRoom({ id: 'ai-chat-room', participants: [username, 'ChatBot'] } as any);
+    setMessages([{
+      id: 'ai-welcome',
+      content: 'Hi! I\'m ChatBot, your AI companion. Let\'s chat! How\'s your day going?',
+      username: 'ChatBot',
+      createdAt: new Date().toISOString()
+    }]);
+    
+    // Clear timers
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+    if (aiTimeoutId) {
+      clearTimeout(aiTimeoutId);
+      setAiTimeoutId(null);
+    }
+  };
+
   const startNewChat = () => {
     // If we're in an active chat, notify the server we're ending it
-    if (currentRoom && ws) {
+    if (currentRoom && ws && !isAIChat) {
       endChat();
     }
     
     if (pollRef.current) {
       clearInterval(pollRef.current);
       pollRef.current = null;
+    }
+    if (aiTimeoutId) {
+      clearTimeout(aiTimeoutId);
+      setAiTimeoutId(null);
     }
     if (ws) {
       ws.close();
@@ -157,6 +250,8 @@ export default function SimpleChat() {
     setMatchedUser(null);
     setMessages([]);
     setIsLookingForMatch(false);
+    setShowAIOption(false);
+    setIsAIChat(false);
   };
 
   const handleUsernameSubmit = (userData: UserEntry) => {
@@ -215,15 +310,27 @@ export default function SimpleChat() {
           <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 py-3 mx-2 sm:mx-4 mt-2 sm:mt-4 rounded-t-xl shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
-                  <span className="text-white font-semibold text-lg">{matchedUser.charAt(0).toUpperCase()}</span>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md ${
+                  isAIChat 
+                    ? 'bg-gradient-to-br from-orange-500 to-red-500' 
+                    : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                }`}>
+                  {isAIChat ? (
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  ) : (
+                    <span className="text-white font-semibold text-lg">{matchedUser.charAt(0).toUpperCase()}</span>
+                  )}
                 </div>
                 <div>
                   <h2 className="font-semibold text-gray-900">{matchedUser}</h2>
-                  <p className="text-xs text-green-600 font-medium">● Online</p>
+                  <p className={`text-xs font-medium ${
+                    isAIChat ? 'text-orange-600' : 'text-green-600'
+                  }`}>● {isAIChat ? 'AI Assistant' : 'Online'}</p>
                 </div>
               </div>
-              <div className="text-xs text-gray-500">Anonymous Chat</div>
+              <div className="text-xs text-gray-500">{isAIChat ? 'AI Chat' : 'Anonymous Chat'}</div>
             </div>
           </div>
 
@@ -326,6 +433,35 @@ export default function SimpleChat() {
                   <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   <div className="w-2 h-2 bg-gradient-to-r from-pink-600 to-red-600 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
                 </div>
+              </div>
+            ) : showAIOption ? (
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100 max-w-lg mx-auto">
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-xl">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">No students online right now</h3>
+                <p className="text-gray-600 mb-6 text-sm leading-relaxed">Don't worry! You can chat with our AI companion while waiting for other students to join.</p>
+                
+                <div className="space-y-3">
+                  <Button 
+                    onClick={startAIChat} 
+                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                  >
+                    Chat with AI Buddy
+                  </Button>
+                  
+                  <Button 
+                    onClick={startChat} 
+                    variant="outline"
+                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-3 text-base rounded-xl transition-all duration-200"
+                  >
+                    Keep waiting for students
+                  </Button>
+                </div>
+                
+                <p className="text-xs text-gray-500 mt-4 text-center">AI • Friendly • Always available</p>
               </div>
             ) : (
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-10 shadow-xl border border-gray-100">
