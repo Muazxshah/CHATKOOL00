@@ -186,9 +186,8 @@ export default function SimpleChat() {
       
       // Start 10-second timer for AI fallback
       const timeoutId = setTimeout(() => {
-        if (isLookingForMatch && !currentRoom) {
-          setShowAIOption(true);
-        }
+        console.log('10-second timeout triggered');
+        setShowAIOption(true);
       }, 10000);
       setAiTimeoutId(timeoutId);
       
