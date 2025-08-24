@@ -62,7 +62,7 @@ export default function SimpleChat() {
       timeoutId = setTimeout(() => {
         const currentHeight = window.innerHeight;
         const heightDifference = initialViewportHeight - currentHeight;
-        const keyboardOpen = heightDifference > 150;
+        const keyboardOpen = heightDifference > 200; // Account for Chrome address bar changes
         
         setIsKeyboardOpen(keyboardOpen);
       }, 150);

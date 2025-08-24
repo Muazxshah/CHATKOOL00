@@ -184,8 +184,8 @@ html, body {
 /* Mobile optimization with dynamic keyboard handling */
 @media (max-width: 640px) {
   .mobile-chat-container {
-    height: 100vh !important;
-    height: 100dvh !important; /* Dynamic viewport height */
+    height: calc(100vh - 80px) !important; /* Account for Chrome address bar */
+    max-height: calc(100vh - 80px) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
@@ -229,20 +229,26 @@ html, body {
   }
   
   /* Enhanced keyboard detection - when keyboard opens */
-  .compact-mode {
-    height: calc(100vh - 300px) !important;
-    height: calc(100dvh - 300px) !important;
+  .compact-mode .mobile-chat-container {
+    height: calc(100vh - 400px) !important; /* Chrome bar + keyboard space */
+    max-height: calc(100vh - 400px) !important;
   }
   
   .compact-mode .mobile-messages-area {
     flex: 1 !important;
-    min-height: 120px !important;
+    min-height: 100px !important;
+    max-height: calc(100vh - 500px) !important;
   }
   
   .compact-mode .mobile-message-input-area {
     padding: 0.5rem !important;
-    position: sticky !important;
-    bottom: 0 !important;
-    z-index: 100 !important;
+    position: fixed !important;
+    bottom: 20px !important; /* Above system UI */
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    margin: 0 0.5rem !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
   }
 }
