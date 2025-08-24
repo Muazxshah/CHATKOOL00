@@ -180,3 +180,40 @@ html, body {
     background-color: var(--secondary-green);
   }
 }
+
+/* Mobile compact mode for chat when keyboard is open */
+@media (max-width: 640px) {
+  .compact-mode {
+    /* Reduce overall height when keyboard is active */
+    height: calc(100vh - 250px) !important;
+  }
+  
+  .compact-mode .messages-area {
+    /* More compact message area */
+    max-height: 40vh !important;
+    padding: 0.5rem !important;
+  }
+  
+  .compact-mode .message-input-area {
+    /* Compact input area */
+    padding: 0.5rem 1rem !important;
+    margin: 0.25rem !important;
+  }
+  
+  .compact-mode .chat-header {
+    /* Smaller header */
+    padding: 0.5rem 1rem !important;
+    min-height: auto !important;
+  }
+  
+  .compact-mode .typing-indicator {
+    /* Smaller typing indicator */
+    padding: 0.25rem 1rem !important;
+  }
+  
+  .compact-mode .message-bubble {
+    /* Smaller message bubbles */
+    padding: 0.5rem 0.75rem !important;
+    margin: 0.125rem 0 !important;
+  }
+}

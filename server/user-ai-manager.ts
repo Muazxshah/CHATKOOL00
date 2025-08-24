@@ -10,6 +10,7 @@ interface UserAIBots {
 
 export class UserAIManager {
   private userBots: Map<string, UserAIBots> = new Map();
+  private recentFallbacks = new Map<string, string[]>();
   
   // Clean up inactive users (older than 30 minutes)
   private cleanupInterval = setInterval(() => {
@@ -89,7 +90,7 @@ export class UserAIManager {
         console.log(`❌ Both APIs failed for user ${username}, using manual fallback`);
         console.error('OpenAI error:', openaiError instanceof Error ? openaiError.message : String(openaiError));
         
-        // Manual fallback responses if both fail
+        // Manual fallback responses if both fail - more variety to avoid repetition
         const manualFallbacks = [
           'hey whats up!',
           'haha same tbh', 
@@ -99,9 +100,67 @@ export class UserAIManager {
           'ohh interesting',
           'grabe naman haha',
           'uy kamusta ka?',
-          'chill lang pre'
+          'chill lang pre',
+          'sige lang',
+          'oks naman',
+          'how u doing?',
+          'wassup bro',
+          'ayos ah',
+          'ganda ng weather ngayon no?',
+          'what course ka?',
+          'anong year ka na?',
+          'san ka nag-aaral?',
+          'busy ka ba ngayon?',
+          'kumain ka na?',
+          'tulog ka na?',
+          'studying ka ba?',
+          'ano ginagawa mo?',
+          'hoy respond ka naman',
+          'helloooo',
+          'uy andyan ka pa?',
+          'bored din ako eh',
+          'ansaya ng weekend no?',
+          'stress ka ba sa school?',
+          'same energy tayo',
+          'hahaha oo nga',
+          'truee yan',
+          'relate ako dyan',
+          'ganyan talaga life',
+          'college life is hard no?',
+          'pahinga ka muna',
+          'inom tubig ka',
+          'lakwatsa tayo minsan',
+          'san ka usually nag-ha-hang out?',
+          'anong fave food mo?',
+          'mahilig ka ba sa kpop?',
+          'nanonood ka ng anime?',
+          'gamer ka ba?',
+          'madalas ka ba mag-social media?',
+          'tiktok adik ka din?'
         ];
-        return manualFallbacks[Math.floor(Math.random() * manualFallbacks.length)];
+        
+        // Make sure we don't repeat the same response for the same user recently
+        const userKey = `fallback_${username}`;
+        const recentResponses = this.recentFallbacks.get(userKey) || [];
+        
+        // Filter out recently used responses
+        const availableResponses = manualFallbacks.filter(response => 
+          !recentResponses.includes(response)
+        );
+        
+        // If all responses were used recently, reset the history
+        const finalResponses = availableResponses.length > 0 ? availableResponses : manualFallbacks;
+        
+        const selectedResponse = finalResponses[Math.floor(Math.random() * finalResponses.length)];
+        
+        // Track this response
+        recentResponses.push(selectedResponse);
+        if (recentResponses.length > 15) {
+          recentResponses.shift(); // Keep only last 15 responses
+        }
+        this.recentFallbacks.set(userKey, recentResponses);
+        
+        return selectedResponse;
       }
     }
   }
