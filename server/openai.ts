@@ -113,22 +113,10 @@ export class OpenAIChatBot {
         return afkMessages[Math.floor(Math.random() * afkMessages.length)];
       }
       
-      // If recently AFK, mention coming back (20% chance)
-      if (this.isAFK && Math.random() < 0.2) {
-        this.isAFK = false;
-        const backMessages = [
-          'back! sorry bout that',
-          'okayy im back haha',
-          'sorry took longer than expected',
-          'heyyy back na me'
-        ];
-        return backMessages[Math.floor(Math.random() * backMessages.length)];
-      }
-      
-      // Sometimes give very short responses (8% chance)
-      if (Math.random() < 0.08) {
+      // Reduced random responses to 1% chance only
+      if (Math.random() < 0.01) {
         const shortReplies = [
-          'hmm', 'same', 'fr?', 'bet', 'mood', 'lol', 'yah', 'tbh', 'ikr', 'oop', 'lmao', 'welp', 'nahh', 'yep'
+          'hmm', 'lol', 'yah', 'bet'
         ];
         return shortReplies[Math.floor(Math.random() * shortReplies.length)];
       }
@@ -151,11 +139,11 @@ export class OpenAIChatBot {
         messages: [
           {
             role: "system",
-            content: `You are a Filipino college student chatting anonymously online. Keep responses very short (1-2 sentences max), casual, and natural. Use some Filipino slang mixed with English. ${conversationContext}`
+            content: `You are a Filipino college student chatting anonymously online. Respond naturally to what the user just said. Keep responses very short (1-2 sentences max), casual, and natural. Use some Filipino slang mixed with English.`
           },
           {
             role: "user", 
-            content: userMessage
+            content: `Previous conversation: ${conversationContext}\n\nCurrent message: ${userMessage}`
           }
         ],
         max_tokens: 30, // Very short responses
