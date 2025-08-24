@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertMessageSchema, userEntrySchema } from "@shared/schema";
-import { dualAIBot } from "./dual-ai";
+import { userAIManager } from "./user-ai-manager";
 
 interface ChatWebSocket extends WebSocket {
   username?: string;
@@ -45,7 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (aiName) {
-        dualAIBot.setCurrentName(aiName);
+        userAIManager.setCurrentName(username, aiName);
       }
       
       // For first message, just return a natural greeting
@@ -60,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const greeting = greetings[Math.floor(Math.random() * greetings.length)];
         res.json({ response: greeting });
       } else {
-        const aiResponse = await dualAIBot.sendMessage(message, username);
+        const aiResponse = await userAIManager.sendMessage(username, message);
         res.json({ response: aiResponse });
       }
     } catch (error) {
