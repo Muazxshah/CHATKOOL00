@@ -51,11 +51,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For first message, just return a natural greeting
       if (isFirstMessage) {
         const greetings = [
-          'Hey! Nice to meet you 😊',
-          'Hi there! Kumusta?',
-          'Hello! How are you doing?',
-          'Hey! What\'s up, pre?',
-          'Hi! Nice to connect with you!'
+          'heyy! 😊',
+          'whats up?',
+          'hiii',
+          'yo! 👋',
+          'hey there!',
+          'sup pre?',
+          'hello! 😁'
         ];
         const greeting = greetings[Math.floor(Math.random() * greetings.length)];
         res.json({ response: greeting });
