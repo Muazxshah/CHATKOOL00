@@ -161,7 +161,21 @@ export class GeminiChatBot {
         }
       });
 
-      let aiResponse = response.text || '';
+      let aiResponse = '';
+      
+      // Parse Gemini response correctly
+      if (response.candidates && response.candidates.length > 0) {
+        const candidate = response.candidates[0];
+        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+          aiResponse = candidate.content.parts[0].text || '';
+        }
+      }
+      
+      // Fallback to response.text if available
+      if (!aiResponse && response.text) {
+        aiResponse = response.text;
+      }
+      
       if (!aiResponse) {
         throw new Error('No response from Gemini API');
       }
