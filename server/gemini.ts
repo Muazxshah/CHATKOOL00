@@ -1,7 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Initialize Gemini AI with API key
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+// Initialize Gemini AI with API key - check both environment variables
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+console.log('Gemini API Key available:', apiKey ? 'YES' : 'NO');
+const ai = new GoogleGenAI({ apiKey });
 
 export interface AIMessage {
   content: string;
@@ -152,14 +154,14 @@ export class GeminiChatBot {
       // Generate response using Gemini 2.5 Flash
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: conversationContext + `\n${this.currentName}:`,
+        contents: conversationContext + `\nUser: ${userMessage}\n${this.currentName}:`,
         config: {
-          maxOutputTokens: 50, // Force shorter responses
+          maxOutputTokens: 50,
           temperature: 0.95
         }
       });
 
-      let aiResponse = response.text;
+      let aiResponse = response.text || '';
       if (!aiResponse) {
         throw new Error('No response from Gemini API');
       }

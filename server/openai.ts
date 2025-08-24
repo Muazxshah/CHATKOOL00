@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 
-// Initialize OpenAI with API key  
+// Initialize OpenAI with API key
+console.log('OpenAI API Key available:', process.env.OPENAI_API_KEY ? 'YES' : 'NO');  
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export class OpenAIChatBot {
@@ -150,15 +151,15 @@ export class OpenAIChatBot {
         messages: [
           {
             role: "system",
-            content: conversationContext
+            content: `You are a Filipino college student chatting anonymously online. Keep responses very short (1-2 sentences max), casual, and natural. Use some Filipino slang mixed with English. ${conversationContext}`
           },
           {
             role: "user", 
             content: userMessage
           }
         ],
-        max_tokens: 75, // Force shorter responses
-        temperature: 0.95
+        max_tokens: 30, // Very short responses
+        temperature: 0.9
       });
 
       let aiResponse = response.choices[0].message.content;
