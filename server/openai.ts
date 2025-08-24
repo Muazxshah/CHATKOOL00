@@ -1,14 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-// Initialize Gemini AI with API key
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+// Initialize OpenAI with API key  
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export interface AIMessage {
-  content: string;
-  username: string;
-}
-
-export class GeminiChatBot {
+export class OpenAIChatBot {
   private conversationHistory: string[] = [];
   private currentName: string = 'Student';
   private gender: string = '';
@@ -98,6 +93,14 @@ export class GeminiChatBot {
         this.mood = moods[Math.floor(Math.random() * moods.length)];
       }
       
+      // Sometimes give very short responses (5% chance only)
+      if (Math.random() < 0.05) {
+        const shortReplies = [
+          'hmm', 'same', 'fr?', 'bet', 'mood', 'lol', 'yah', 'tbh', 'ikr'
+        ];
+        return shortReplies[Math.floor(Math.random() * shortReplies.length)];
+      }
+      
       // Add mood context
       let moodContext = '';
       if (this.mood !== 'neutral') {
@@ -107,23 +110,26 @@ export class GeminiChatBot {
       // Create conversation context with memory
       const conversationContext = this.conversationHistory.join('\n') + moodContext;
       
-      // Sometimes give very short responses (5% chance only)
-      if (Math.random() < 0.05) {
-        const shortReplies = [
-          'hmm', 'same', 'fr?', 'bet', 'mood', 'lol', 'yah', 'tbh', 'ikr'
-        ];
-        return shortReplies[Math.floor(Math.random() * shortReplies.length)];
-      }
-      
-      // Generate response using Gemini 2.5 Flash
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: conversationContext + `\n${this.currentName}:`,
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini", // Using mini for cost efficiency
+        messages: [
+          {
+            role: "system",
+            content: conversationContext
+          },
+          {
+            role: "user", 
+            content: userMessage
+          }
+        ],
+        max_tokens: 150,
+        temperature: 0.9
       });
 
-      let aiResponse = response.text;
+      let aiResponse = response.choices[0].message.content;
       if (!aiResponse) {
-        throw new Error('No response from Gemini API');
+        throw new Error('No response from OpenAI API');
       }
       
       // Clean up response - remove any name prefixes
@@ -143,10 +149,10 @@ export class GeminiChatBot {
       
       return aiResponse;
     } catch (error) {
-      console.error('Gemini AI error:', error);
+      console.error('OpenAI error:', error);
       console.error('Error details:', error instanceof Error ? error.message : String(error));
       
-      // Throw error so dual AI system can switch to OpenAI
+      // Throw error so dual AI system knows this model failed too
       throw error;
     }
   }
@@ -186,5 +192,5 @@ export class GeminiChatBot {
   }
 }
 
-// Global AI bot instance
-export const aiBot = new GeminiChatBot();
+// Global OpenAI bot instance
+export const openaiBot = new OpenAIChatBot();
