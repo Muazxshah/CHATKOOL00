@@ -153,6 +153,10 @@ export class GeminiChatBot {
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: conversationContext + `\n${this.currentName}:`,
+        config: {
+          maxOutputTokens: 50, // Force shorter responses
+          temperature: 0.95
+        }
       });
 
       let aiResponse = response.text;
@@ -196,6 +200,12 @@ export class GeminiChatBot {
   }
   
   private makeMoreHuman(text: string): string {
+    // Force ultra-short responses (1 line average)
+    const words = text.split(' ');
+    if (words.length > 8) {
+      text = words.slice(0, 6).join(' '); // Cut to 6 words max
+    }
+    
     // Inject realistic errors occasionally (15% chance)
     if (Math.random() < 0.15) {
       text = this.addRealisticErrors(text);

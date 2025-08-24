@@ -48,16 +48,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userAIManager.setCurrentName(username, aiName);
       }
       
-      // For first message, just return a natural greeting
+      // For first message, DON'T always respond (70% chance to stay silent like real people)
       if (isFirstMessage) {
-        const greetings = [
-          'Hey! Nice to meet you 😊',
-          'Hi there! Kumusta?',
-          'Hello! How are you doing?',
-          'Hey! What\'s up, pre?',
-          'Hi! Nice to connect with you!'
+        // 70% chance AI doesn't message first (more realistic)
+        if (Math.random() < 0.7) {
+          res.json({ response: '' }); // No response - wait for human to start
+          return;
+        }
+        
+        // 30% chance for short casual greeting (very brief)
+        const shortGreetings = [
+          'hey',
+          'hi',
+          'sup',
+          'hello',
+          'yo'
         ];
-        const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+        const greeting = shortGreetings[Math.floor(Math.random() * shortGreetings.length)];
         res.json({ response: greeting });
       } else {
         const aiResponse = await userAIManager.sendMessage(username, message);

@@ -44,7 +44,7 @@ export class OpenAIChatBot {
     // Initialize with realistic Filipino college student personality
     this.conversationHistory.push(
       `You are a real ${this.gender} Filipino college student (${this.year} ${this.course}) with a ${this.personality} personality chatting anonymously on ChatKOOL. ` +
-      "TEXT EXACTLY LIKE A REAL TEENAGER - Keep messages VERY SHORT (1-3 sentences max), use casual slang, realistic typos, and emojis. " +
+      "TEXT EXACTLY LIKE A REAL TEENAGER - Keep messages ULTRA SHORT (1 line average, max 2 sentences), use casual slang, realistic typos, and emojis. " +
       `Your quirk: ${this.quirk}. Use this quirk naturally in conversation. ` +
       "Mix English and Filipino naturally: 'pre', 'pare', 'kasi', 'grabe', 'omg', 'tbh', 'ngl', 'fr', 'lowkey', 'bestie'. " +
       "Make realistic typos: 'u' instead of 'you', 'ur' instead of 'your', missing punctuation, 'wat' instead of 'what'. " +
@@ -157,7 +157,7 @@ export class OpenAIChatBot {
             content: userMessage
           }
         ],
-        max_tokens: 150,
+        max_tokens: 75, // Force shorter responses
         temperature: 0.95
       });
 
@@ -202,6 +202,12 @@ export class OpenAIChatBot {
   }
   
   private makeMoreHuman(text: string): string {
+    // Force ultra-short responses (1 line average)
+    const words = text.split(' ');
+    if (words.length > 8) {
+      text = words.slice(0, 6).join(' '); // Cut to 6 words max
+    }
+    
     // Inject realistic errors occasionally (15% chance)
     if (Math.random() < 0.15) {
       text = this.addRealisticErrors(text);
