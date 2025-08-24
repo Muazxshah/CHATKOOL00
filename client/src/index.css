@@ -225,7 +225,21 @@ html, body {
   
   /* When keyboard is open, make even more compact */
   .compact-mode .mobile-messages-area {
-    max-height: calc(100vh - 380px) !important;
-    min-height: 120px !important;
+    max-height: calc(100vh - 450px) !important;
+    min-height: 80px !important;
+  }
+  
+  .compact-mode .mobile-message-input-area {
+    padding: 0.5rem !important;
+    margin: 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+  }
+  
+  .compact-mode .mobile-chat-container {
+    padding-bottom: 80px !important;
   }
 }
