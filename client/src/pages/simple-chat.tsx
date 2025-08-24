@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ export default function SimpleChat() {
   const [messageInput, setMessageInput] = useState("");
   const [ws, setWs] = useState<WebSocket | null>(null);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [, setLocation] = useLocation();
 
   // Simple WebSocket connection
@@ -121,27 +122,36 @@ export default function SimpleChat() {
     }
   });
 
-  const sendMessage = async () => {
+  const sendMessage = useCallback(async () => {
     if (!messageInput.trim() || !currentRoom) return;
+
+    const messageToSend = messageInput.trim();
+    setMessageInput(""); // Clear input immediately for better UX
+    
+    // Keep focus on input field to maintain mobile keyboard
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 50);
 
     if (isAIChat) {
       // Handle AI Chat
       const userMessage = {
         id: Date.now().toString(),
-        content: messageInput.trim(),
+        content: messageToSend,
         username: username!,
         createdAt: new Date().toISOString()
       };
       
       setMessages(prev => [...prev, userMessage]);
-      setMessageInput("");
       
       // Send to AI
       try {
         const response = await fetch('/api/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: messageInput.trim(), username, aiName: matchedUser })
+          body: JSON.stringify({ message: messageToSend, username, aiName: matchedUser })
         });
         
         const data = await response.json();
@@ -169,11 +179,10 @@ export default function SimpleChat() {
       // Handle Human Chat
       ws.send(JSON.stringify({
         type: 'chat_message',
-        content: messageInput.trim()
+        content: messageToSend
       }));
-      setMessageInput("");
     }
-  };
+  }, [messageInput, currentRoom, isAIChat, username, matchedUser, ws]);
 
   const startChat = () => {
     if (username) {
@@ -398,14 +407,19 @@ export default function SimpleChat() {
                 End Chat
               </Button>
               <Input
+                ref={inputRef}
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
                 placeholder="Type your message..."
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
+                    e.preventDefault();
                     sendMessage();
                   }
                 }}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="sentences"
                 className="flex-1 border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors"
               />
               <Button 
