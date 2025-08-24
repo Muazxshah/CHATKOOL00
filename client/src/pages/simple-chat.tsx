@@ -183,21 +183,25 @@ export default function SimpleChat() {
       
       setMessages(prev => [...prev, userMessage]);
       
-      // Show AI typing indicator
+      // Show AI typing indicator immediately
+      console.log('Setting AI typing indicator to true, current state:', isPartnerTyping);
       setIsPartnerTyping(true);
       
-      // Send to AI
-      try {
-        const response = await fetch('/api/ai-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: messageToSend, username, aiName: matchedUser })
-        });
-        
-        const data = await response.json();
-        
-        // Hide AI typing indicator and show message
-        setIsPartnerTyping(false);
+      // Add small delay to show typing indicator before API call
+      setTimeout(async () => {
+        // Send to AI
+        try {
+          const response = await fetch('/api/ai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageToSend, username, aiName: matchedUser })
+          });
+          
+          const data = await response.json();
+          
+          // Hide AI typing indicator and show message
+          console.log('Hiding AI typing indicator, current state:', isPartnerTyping);
+          setIsPartnerTyping(false);
         
         const aiMessage = {
           id: Date.now().toString() + '-ai',
@@ -210,19 +214,20 @@ export default function SimpleChat() {
           setMessages(prev => [...prev, aiMessage]);
           // Ensure scroll after AI message is added
           setTimeout(scrollToBottom, 150);
-        }, 300); // Small delay for natural feel
-      } catch (error) {
-        console.error('AI chat error:', error);
-        setIsPartnerTyping(false);
-        const errorMessage = {
-          id: Date.now().toString() + '-error',
-          content: 'Sorry, connection\'s a bit slow here. What were you saying?',
-          username: matchedUser!,
-          createdAt: new Date().toISOString()
-        };
-        setMessages(prev => [...prev, errorMessage]);
-        setTimeout(scrollToBottom, 150);
-      }
+          }, 300); // Small delay for natural feel
+        } catch (error) {
+          console.error('AI chat error:', error);
+          setIsPartnerTyping(false);
+          const errorMessage = {
+            id: Date.now().toString() + '-error',
+            content: 'Sorry, connection\'s a bit slow here. What were you saying?',
+            username: matchedUser!,
+            createdAt: new Date().toISOString()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          setTimeout(scrollToBottom, 150);
+        }
+      }, 500); // Show typing for at least 500ms
     } else if (ws) {
       // Handle Human Chat
       ws.send(JSON.stringify({
@@ -471,11 +476,11 @@ export default function SimpleChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Typing Indicator */}
+          {/* Typing Indicator - Debug: {JSON.stringify(isPartnerTyping)} */}
           {isPartnerTyping && (
-            <div className="px-4 py-2 bg-gray-50">
+            <div className="px-4 py-2 bg-yellow-50 border border-yellow-200">
               <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                <div className="max-w-xs px-4 py-2 bg-gray-200 rounded-2xl">
+                <div className="max-w-xs px-4 py-2 bg-blue-100 rounded-2xl border border-blue-200">
                   <div className="flex items-center space-x-1">
                     <span className="text-xs">{matchedUser} is typing</span>
                     <div className="flex space-x-1">
