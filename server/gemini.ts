@@ -107,14 +107,10 @@ export class GeminiChatBot {
       // Create conversation context with memory
       const conversationContext = this.conversationHistory.join('\n') + moodContext;
       
-      // Simulate typing delay (2-6 seconds)
-      const typingDelay = Math.random() * 4000 + 2000;
-      await new Promise(resolve => setTimeout(resolve, typingDelay));
-      
-      // Sometimes give very short responses (15% chance)
-      if (Math.random() < 0.15) {
+      // Sometimes give very short responses (5% chance only)
+      if (Math.random() < 0.05) {
         const shortReplies = [
-          'hmm', 'same', 'nahh', 'fr?', 'bet', 'mood', 'lol', 'omg', 'oop', 'yah', 'nah', 'tbh', 'ikr'
+          'hmm', 'same', 'fr?', 'bet', 'mood', 'lol', 'yah', 'tbh', 'ikr'
         ];
         return shortReplies[Math.floor(Math.random() * shortReplies.length)];
       }
@@ -125,15 +121,22 @@ export class GeminiChatBot {
         contents: conversationContext + `\n${this.currentName}:`,
       });
 
-      let aiResponse = response.text || "uhh my wifi is acting up lol";
+      let aiResponse = response.text;
+      if (!aiResponse) {
+        throw new Error('No response from Gemini API');
+      }
       
       // Clean up response - remove any name prefixes
       aiResponse = aiResponse.replace(/^(ChatBot|${this.currentName}):\s*/, '').trim();
       
-      // Inject realistic errors occasionally (10% chance)
-      if (Math.random() < 0.1) {
+      // Inject realistic errors occasionally (3% chance)
+      if (Math.random() < 0.03) {
         aiResponse = this.addRealisticErrors(aiResponse);
       }
+      
+      // Simulate typing delay AFTER getting response (1-3 seconds)
+      const typingDelay = Math.random() * 2000 + 1000;
+      await new Promise(resolve => setTimeout(resolve, typingDelay));
       
       // Add AI response to history
       this.conversationHistory.push(`${this.currentName}: ${aiResponse}`);
@@ -141,13 +144,18 @@ export class GeminiChatBot {
       return aiResponse;
     } catch (error) {
       console.error('Gemini AI error:', error);
-      const errorResponses = [
-        'uhh my wifi is acting up lol',
-        'sorry app glitched for a sec',
-        'oop connection issues rn',
-        'bruh my phone is being weird'
+      console.error('Error details:', error instanceof Error ? error.message : String(error));
+      
+      // Return natural responses instead of error messages
+      const naturalResponses = [
+        'hey whats up!',
+        'haha same tbh',
+        'fr? thats cool',
+        'nice nice',
+        'lol bet',
+        'ohh interesting'
       ];
-      return errorResponses[Math.floor(Math.random() * errorResponses.length)];
+      return naturalResponses[Math.floor(Math.random() * naturalResponses.length)];
     }
   }
   
