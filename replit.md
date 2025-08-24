@@ -1,6 +1,6 @@
 # Overview
 
-ChatKOOL is an anonymous online chat platform specifically designed for Filipino college students. It provides instant random 1-on-1 connections without authentication barriers, allowing students to chat with strangers safely and anonymously. The platform features real-time messaging via WebSocket connections, comprehensive SEO optimization targeting keywords like "chatkool", "chatcool", "online chat", "chat online", and "chat with strangers", a responsive web interface built with modern React patterns, and a native React Native mobile app for iOS and Android.
+ChatKOOL is an anonymous online chat platform specifically designed for Filipino college students. It provides instant random 1-on-1 connections without authentication barriers, allowing students to chat with strangers safely and anonymously. The platform features real-time messaging via WebSocket connections, comprehensive SEO optimization targeting keywords like "chatkool", "chatcool", "online chat", "chat online", and "chat with strangers", and a responsive web interface built with modern React patterns.
 
 # User Preferences
 
@@ -9,22 +9,12 @@ Preferred communication style: Simple, everyday language.
 # System Architecture
 
 ## Frontend Architecture
-
-### Web Application
 - **React 18** with TypeScript for type safety and modern React patterns
 - **Vite** as the build tool for fast development and optimized production builds
 - **Wouter** for lightweight client-side routing instead of React Router
 - **TanStack Query** for server state management and caching
 - **Tailwind CSS** with **shadcn/ui** component library for consistent, accessible UI components
 - **React Hook Form** with **Zod** validation for type-safe form handling
-
-### Mobile Application (React Native)
-- **React Native** with **Expo** framework for native iOS and Android apps
-- **React Navigation 6** for native mobile navigation patterns
-- **TypeScript** for full type safety across mobile codebase
-- **Native WebSocket API** for real-time messaging on mobile devices
-- **Custom React Native components** optimized for mobile touch interactions
-- **Platform-specific optimizations** for iOS and Android user experiences
 
 ## Backend Architecture
 - **Express.js** server with TypeScript for API endpoints and middleware
@@ -94,37 +84,3 @@ Preferred communication style: Simple, everyday language.
 - **Filipino student targeting**: Content specifically tailored for Philippines market
 - **Anonymous chat emphasis**: Strong focus on privacy and no-registration benefits
 - **User experience**: Clear value propositions and multiple call-to-action buttons
-
-## Mobile Application Strategy (Updated August 2025)
-
-### React Native Implementation
-- **Cross-platform mobile app** built with React Native and Expo
-- **Native iOS and Android** versions for App Store and Google Play deployment
-- **Shared codebase** with web application for consistent functionality
-- **Mobile-optimized UI** designed specifically for touch interactions
-- **Push notifications** for real-time message alerts
-- **Offline support** for better mobile user experience
-
-### Mobile-Specific Features
-- **Touch-optimized chat interface** with native mobile patterns
-- **Swipe gestures** for navigation and chat management  
-- **Mobile keyboard handling** with proper input management
-- **Native app icons and splash screens** with ChatKOOL branding
-- **App Store optimization** targeting Filipino student keywords
-- **Deep linking** for seamless mobile user onboarding
-
-### Mobile Development Architecture
-- **Expo framework** for rapid mobile development and deployment
-- **TypeScript configuration** for mobile-specific type definitions
-- **Custom hooks** for mobile WebSocket connectivity and state management
-- **React Navigation** for native mobile navigation patterns
-- **Mobile API service layer** connecting to existing backend infrastructure
-- **Platform-specific styling** optimized for iOS and Android design guidelines
-
-### Mobile App Store Strategy
-- **iOS App Store** presence targeting Filipino college students
-- **Google Play Store** optimization for Philippines market
-- **Mobile SEO keywords**: "chat app philippines", "student chat mobile", "anonymous chat app"
-- **Localized app descriptions** in English and Filipino
-- **Student-focused app screenshots** showcasing key mobile features
-- **App Store ratings strategy** encouraging positive student feedback
