@@ -183,25 +183,21 @@ export default function SimpleChat() {
       
       setMessages(prev => [...prev, userMessage]);
       
-      // Show AI typing indicator immediately
-      console.log('Setting AI typing indicator to true, current state:', isPartnerTyping);
+      // Show AI typing indicator
       setIsPartnerTyping(true);
       
-      // Add small delay to show typing indicator before API call
-      setTimeout(async () => {
-        // Send to AI
-        try {
-          const response = await fetch('/api/ai-chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageToSend, username, aiName: matchedUser })
-          });
-          
-          const data = await response.json();
-          
-          // Hide AI typing indicator and show message
-          console.log('Hiding AI typing indicator, current state:', isPartnerTyping);
-          setIsPartnerTyping(false);
+      // Send to AI
+      try {
+        const response = await fetch('/api/ai-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: messageToSend, username, aiName: matchedUser })
+        });
+        
+        const data = await response.json();
+        
+        // Hide AI typing indicator and show message
+        setIsPartnerTyping(false);
         
         const aiMessage = {
           id: Date.now().toString() + '-ai',
@@ -214,20 +210,19 @@ export default function SimpleChat() {
           setMessages(prev => [...prev, aiMessage]);
           // Ensure scroll after AI message is added
           setTimeout(scrollToBottom, 150);
-          }, 300); // Small delay for natural feel
-        } catch (error) {
-          console.error('AI chat error:', error);
-          setIsPartnerTyping(false);
-          const errorMessage = {
-            id: Date.now().toString() + '-error',
-            content: 'Sorry, connection\'s a bit slow here. What were you saying?',
-            username: matchedUser!,
-            createdAt: new Date().toISOString()
-          };
-          setMessages(prev => [...prev, errorMessage]);
-          setTimeout(scrollToBottom, 150);
-        }
-      }, 500); // Show typing for at least 500ms
+        }, 300); // Small delay for natural feel
+      } catch (error) {
+        console.error('AI chat error:', error);
+        setIsPartnerTyping(false);
+        const errorMessage = {
+          id: Date.now().toString() + '-error',
+          content: 'Sorry, connection\'s a bit slow here. What were you saying?',
+          username: matchedUser!,
+          createdAt: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setTimeout(scrollToBottom, 150);
+      }
     } else if (ws) {
       // Handle Human Chat
       ws.send(JSON.stringify({
@@ -411,38 +406,62 @@ export default function SimpleChat() {
   }
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-
-      {/* Messenger-style Chat Interface */}
-      {currentRoom && matchedUser ? (
-        <>
-          {/* Chat Header - Fixed */}
-          <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold text-lg">{matchedUser.charAt(0).toUpperCase()}</span>
-              </div>
-              <div>
-                <h2 className="font-semibold text-gray-900">{matchedUser}</h2>
-                <p className="text-xs text-green-600 font-medium">● Online</p>
-              </div>
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-x-hidden max-w-full">
+      {/* Premium Header */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation('/')}>
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-200">
+              <span className="text-white font-bold text-sm sm:text-lg">C</span>
             </div>
-            <Button 
-              onClick={startNewChat}
-              variant="ghost"
-              size="sm"
-              className="text-red-600 hover:bg-red-50"
-            >
-              End Chat
-            </Button>
+            <div>
+              <h1 className="font-bold text-gray-900 text-base sm:text-lg hover:text-purple-600 transition-colors duration-200">ChatKOOL</h1>
+              <p className="text-xs text-gray-500 hidden sm:block">Connect with students</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2 bg-green-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs sm:text-sm font-medium text-green-700">{username}</span>
+            </div>
+            {currentRoom && (
+              <Button 
+                onClick={startNewChat} 
+                size="sm"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4"
+              >
+                New Chat
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Premium Chat Interface */}
+      {currentRoom && matchedUser ? (
+        <div className={`flex-1 flex flex-col max-w-4xl mx-auto w-full transition-all duration-200 ${isKeyboardOpen ? 'compact-mode' : ''}`}>
+          {/* Chat Header - Compact Premium */}
+          <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 py-3 mx-2 sm:mx-4 mt-2 sm:mt-4 rounded-t-xl shadow-sm chat-header">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+                  <span className="text-white font-semibold text-lg">{matchedUser.charAt(0).toUpperCase()}</span>
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-900">{matchedUser}</h2>
+                  <p className="text-xs text-green-600 font-medium">● Online</p>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500">Anonymous Chat</div>
+            </div>
           </div>
 
-          {/* Messages Area - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 flex flex-col" style={{scrollBehavior: 'smooth'}}>
+          {/* Messages - Compact Design */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 mx-2 sm:mx-4 bg-white/50 backdrop-blur-sm space-y-3 messages-area">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-4 mx-auto shadow-lg">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
@@ -455,47 +474,61 @@ export default function SimpleChat() {
               messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex mb-2 ${msg.username === username ? 'justify-end' : msg.username === 'System' ? 'justify-center' : 'justify-start'}`}
+                  className={`flex ${msg.username === username ? 'justify-end' : msg.username === 'System' ? 'justify-center' : 'justify-start'}`}
                 >
                   {msg.username === 'System' ? (
-                    <div className="bg-yellow-100 rounded-lg px-3 py-1 text-center">
-                      <p className="text-sm text-yellow-800">{msg.content}</p>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mb-2">
+                      <p className="text-sm text-yellow-800 text-center font-medium">{msg.content}</p>
                     </div>
                   ) : (
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                      msg.username === username
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-900'
-                    }`}>
-                      <p className="text-sm break-words">{msg.content}</p>
+                    <div className={`flex items-end space-x-2 max-w-xs sm:max-w-sm ${msg.username === username ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      {msg.username !== username && (
+                        <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                          <span className="text-white text-xs font-medium">{msg.username.charAt(0).toUpperCase()}</span>
+                        </div>
+                      )}
+                      <div
+                        className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-sm message-bubble ${
+                          msg.username === username
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                            : 'bg-white text-gray-900 border border-gray-200'
+                        }`}
+                      >
+                        <p className="text-xs sm:text-sm leading-relaxed break-words">{msg.content}</p>
+                      </div>
                     </div>
                   )}
                 </div>
               ))
             )}
-            
-            {/* Typing Indicator - Inside messages area */}
-            {isPartnerTyping && (
-              <div className="px-0 py-2 flex items-start">
-                <div className="max-w-xs px-3 py-2 bg-gray-200 rounded-2xl">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-600">{matchedUser} is typing</span>
-                    <div className="flex space-x-1">
-                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} />
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} className="h-1" />
           </div>
 
-          {/* Message Input - Fixed Bottom */}
-          <div className="bg-white border-t border-gray-200 px-4 py-3 flex-shrink-0">
-            <div className="flex items-center space-x-2">
+          {/* Typing Indicator */}
+          {isPartnerTyping && (
+            <div className="px-4 sm:px-6 py-2 mx-2 sm:mx-4 typing-indicator">
+              <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                <span>{matchedUser} is typing</span>
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Message Input - Premium Compact */}
+          <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4 mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-b-xl shadow-sm message-input-area">
+            <div className="flex space-x-2 sm:space-x-3">
+              <Button 
+                onClick={startNewChat}
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-xl px-2 sm:px-4 text-xs sm:text-sm"
+              >
+                End Chat
+              </Button>
               <Input
                 ref={inputRef}
                 value={messageInput}
@@ -505,30 +538,29 @@ export default function SimpleChat() {
                   stopTyping();
                   handleInputBlur();
                 }}
-                placeholder="Type a message..."
+                placeholder="Type your message..."
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     sendMessage();
                   }
                 }}
-                className="flex-1 rounded-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="sentences"
+                className="flex-1 border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl bg-gray-50 focus:bg-white transition-colors"
               />
               <Button 
                 onClick={sendMessage}
-                disabled={!messageInput.trim()}
-                className="rounded-full w-10 h-10 bg-blue-600 hover:bg-blue-700 p-0 flex items-center justify-center"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-3 sm:px-6 shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
               </Button>
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-md mx-auto">
