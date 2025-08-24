@@ -181,40 +181,49 @@ html, body {
   }
 }
 
-/* Mobile compact mode for chat when keyboard is open */
+/* Mobile optimization - always compact to fit screen */
 @media (max-width: 640px) {
-  .compact-mode {
-    /* Reduce overall height when keyboard is active */
-    height: calc(100vh - 250px) !important;
+  .mobile-chat-container {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
   
-  .compact-mode .messages-area {
-    /* More compact message area */
-    max-height: 40vh !important;
+  .mobile-chat-header {
+    flex-shrink: 0 !important;
     padding: 0.5rem !important;
-    scroll-behavior: smooth;
-  }
-  
-  .compact-mode .message-input-area {
-    /* Compact input area */
-    padding: 0.5rem 1rem !important;
-    margin: 0.25rem !important;
-  }
-  
-  .compact-mode .chat-header {
-    /* Smaller header */
-    padding: 0.5rem 1rem !important;
     min-height: auto !important;
   }
   
-  .compact-mode .typing-indicator {
-    /* Smaller typing indicator */
-    padding: 0.25rem 1rem !important;
+  .mobile-messages-area {
+    flex: 1 !important;
+    max-height: calc(100vh - 160px) !important;
+    overflow-y: auto !important;
+    padding: 0.5rem !important;
+    scroll-behavior: smooth !important;
   }
   
-  .compact-mode .message-bubble {
-    /* Smaller message bubbles */
+  .mobile-message-input-area {
+    flex-shrink: 0 !important;
+    padding: 0.75rem !important;
+    margin: 0 !important;
+  }
+  
+  .mobile-typing-indicator {
+    flex-shrink: 0 !important;
+    padding: 0.25rem 0.75rem !important;
+  }
+  
+  .mobile-message-bubble {
     padding: 0.5rem 0.75rem !important;
-    margin: 0.125rem 0 !important;
+    margin: 0.25rem 0 !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* When keyboard is open, make even more compact */
+  .compact-mode .mobile-messages-area {
+    max-height: calc(100vh - 280px) !important;
   }
 }
