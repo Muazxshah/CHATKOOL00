@@ -192,6 +192,7 @@ html, body {
     /* More compact message area */
     max-height: 40vh !important;
     padding: 0.5rem !important;
+    scroll-behavior: smooth;
   }
   
   .compact-mode .message-input-area {

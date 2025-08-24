@@ -27,10 +27,37 @@ export default function SimpleChat() {
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [, setLocation] = useLocation();
+  
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  }, []);
+  
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Small delay to ensure DOM is updated
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages, scrollToBottom]);
+  
+  // Scroll to bottom when keyboard opens/closes
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(scrollToBottom, 300);
+    }
+  }, [isKeyboardOpen, scrollToBottom]);
 
   // Simple WebSocket connection
   useEffect(() => {
@@ -181,6 +208,8 @@ export default function SimpleChat() {
         
         setTimeout(() => {
           setMessages(prev => [...prev, aiMessage]);
+          // Ensure scroll after AI message is added
+          setTimeout(scrollToBottom, 150);
         }, 300); // Small delay for natural feel
       } catch (error) {
         console.error('AI chat error:', error);
@@ -192,6 +221,7 @@ export default function SimpleChat() {
           createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, errorMessage]);
+        setTimeout(scrollToBottom, 150);
       }
     } else if (ws) {
       // Handle Human Chat
@@ -471,6 +501,8 @@ export default function SimpleChat() {
                 </div>
               ))
             )}
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} className="h-1" />
           </div>
 
           {/* Typing Indicator */}
