@@ -181,14 +181,15 @@ html, body {
   }
 }
 
-/* Mobile optimization - account for browser address bar */
+/* Mobile optimization with dynamic keyboard handling */
 @media (max-width: 640px) {
   .mobile-chat-container {
-    height: calc(100vh - 60px) !important;
-    max-height: calc(100vh - 60px) !important;
+    height: 100vh !important;
+    height: 100dvh !important; /* Dynamic viewport height */
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
+    transition: height 0.2s ease-in-out !important;
   }
   
   .mobile-chat-header {
@@ -199,17 +200,21 @@ html, body {
   
   .mobile-messages-area {
     flex: 1 !important;
-    max-height: calc(100vh - 240px) !important;
-    min-height: 200px !important;
     overflow-y: auto !important;
     padding: 0.5rem !important;
     scroll-behavior: smooth !important;
+    transition: all 0.2s ease-in-out !important;
+    min-height: 100px !important;
   }
   
   .mobile-message-input-area {
     flex-shrink: 0 !important;
     padding: 0.75rem !important;
     margin: 0 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-top: 1px solid rgba(229, 231, 235, 0.3) !important;
+    transition: all 0.2s ease-in-out !important;
   }
   
   .mobile-typing-indicator {
@@ -223,23 +228,21 @@ html, body {
     font-size: 0.875rem !important;
   }
   
-  /* When keyboard is open, make even more compact */
+  /* Enhanced keyboard detection - when keyboard opens */
+  .compact-mode {
+    height: calc(100vh - 300px) !important;
+    height: calc(100dvh - 300px) !important;
+  }
+  
   .compact-mode .mobile-messages-area {
-    max-height: calc(100vh - 450px) !important;
-    min-height: 80px !important;
+    flex: 1 !important;
+    min-height: 120px !important;
   }
   
   .compact-mode .mobile-message-input-area {
     padding: 0.5rem !important;
-    margin: 0 !important;
-    position: fixed !important;
+    position: sticky !important;
     bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1000 !important;
-  }
-  
-  .compact-mode .mobile-chat-container {
-    padding-bottom: 80px !important;
+    z-index: 100 !important;
   }
 }

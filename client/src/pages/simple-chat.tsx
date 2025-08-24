@@ -31,6 +31,7 @@ export default function SimpleChat() {
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [initialViewportHeight] = useState(window.innerHeight);
   const [, setLocation] = useLocation();
   
   // Auto-scroll to bottom when new messages arrive
@@ -52,10 +53,35 @@ export default function SimpleChat() {
     }
   }, [messages, scrollToBottom]);
   
+  // Enhanced viewport-based keyboard detection
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    const handleViewportChange = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const currentHeight = window.innerHeight;
+        const heightDifference = initialViewportHeight - currentHeight;
+        const keyboardOpen = heightDifference > 150;
+        
+        setIsKeyboardOpen(keyboardOpen);
+      }, 150);
+    };
+    
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('orientationchange', handleViewportChange);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleViewportChange);
+      window.removeEventListener('orientationchange', handleViewportChange);
+    };
+  }, [initialViewportHeight]);
+  
   // Scroll to bottom when keyboard opens/closes
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(scrollToBottom, 300);
+      setTimeout(scrollToBottom, 400);
     }
   }, [isKeyboardOpen, scrollToBottom]);
 
@@ -272,14 +298,17 @@ export default function SimpleChat() {
   }, [startTyping, stopTyping, isAIChat]);
   
   const handleInputFocus = useCallback(() => {
-    setIsKeyboardOpen(true);
+    // Delay to allow keyboard animation
+    setTimeout(() => {
+      setIsKeyboardOpen(true);
+    }, 300);
   }, []);
   
   const handleInputBlur = useCallback(() => {
     // Delay to prevent flicker when tapping send button
     setTimeout(() => {
       setIsKeyboardOpen(false);
-    }, 100);
+    }, 300);
   }, []);
 
   const startChat = () => {
