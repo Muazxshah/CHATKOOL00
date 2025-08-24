@@ -68,17 +68,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Explicit ads.txt handling for AdSense verification
-app.get('/ads.txt', (req, res) => {
-  res.set({
-    'Content-Type': 'text/plain; charset=utf-8',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  });
-  res.send('google.com, pub-5411070266437879, DIRECT, f08c47fec0942fa0');
-});
-
 (async () => {
   const server = await registerRoutes(app);
 
