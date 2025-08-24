@@ -181,11 +181,11 @@ html, body {
   }
 }
 
-/* Mobile optimization - always compact to fit screen */
+/* Mobile optimization - account for browser address bar */
 @media (max-width: 640px) {
   .mobile-chat-container {
-    height: 100vh !important;
-    max-height: 100vh !important;
+    height: calc(100vh - 60px) !important;
+    max-height: calc(100vh - 60px) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
@@ -199,8 +199,8 @@ html, body {
   
   .mobile-messages-area {
     flex: 1 !important;
-    max-height: calc(100vh - 180px) !important;
-    min-height: calc(100vh - 300px) !important;
+    max-height: calc(100vh - 240px) !important;
+    min-height: 200px !important;
     overflow-y: auto !important;
     padding: 0.5rem !important;
     scroll-behavior: smooth !important;
@@ -225,7 +225,7 @@ html, body {
   
   /* When keyboard is open, make even more compact */
   .compact-mode .mobile-messages-area {
-    max-height: calc(100vh - 320px) !important;
-    min-height: 150px !important;
+    max-height: calc(100vh - 380px) !important;
+    min-height: 120px !important;
   }
 }

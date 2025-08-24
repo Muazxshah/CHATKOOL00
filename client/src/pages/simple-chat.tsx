@@ -406,7 +406,7 @@ export default function SimpleChat() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-x-hidden max-w-full sm:mobile-optimized">
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-x-hidden max-w-full sm:mobile-optimized" style={{height: 'calc(100vh - env(safe-area-inset-top, 0px))', minHeight: 'calc(100vh - 60px)'}}>
       {/* Premium Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
         <div className="flex items-center justify-between">
