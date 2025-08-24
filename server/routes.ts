@@ -9,6 +9,7 @@ interface ChatWebSocket extends WebSocket {
   username?: string;
   roomId?: string;
   userId?: string;
+  isTyping?: boolean;
 }
 
 // Store active WebSocket connections by username
@@ -188,6 +189,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           } else {
             ws.send(JSON.stringify({ type: 'error', message: 'Username and room required' }));
+          }
+        } else if (message.type === 'typing_start') {
+          // Handle typing indicator start
+          if (ws.username && ws.roomId) {
+            ws.isTyping = true;
+            
+            // Notify other users in the same room that this user is typing
+            wss.clients.forEach((client: ChatWebSocket) => {
+              if (client.readyState === WebSocket.OPEN && 
+                  client.roomId === ws.roomId && 
+                  client.username !== ws.username) {
+                client.send(JSON.stringify({
+                  type: 'user_typing',
+                  username: ws.username,
+                  isTyping: true
+                }));
+              }
+            });
+          }
+        } else if (message.type === 'typing_stop') {
+          // Handle typing indicator stop
+          if (ws.username && ws.roomId) {
+            ws.isTyping = false;
+            
+            // Notify other users in the same room that this user stopped typing
+            wss.clients.forEach((client: ChatWebSocket) => {
+              if (client.readyState === WebSocket.OPEN && 
+                  client.roomId === ws.roomId && 
+                  client.username !== ws.username) {
+                client.send(JSON.stringify({
+                  type: 'user_typing',
+                  username: ws.username,
+                  isTyping: false
+                }));
+              }
+            });
           }
         } else if (message.type === 'end_chat') {
           // Handle ending a chat - notify the other user

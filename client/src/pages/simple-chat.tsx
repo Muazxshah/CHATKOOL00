@@ -26,6 +26,9 @@ export default function SimpleChat() {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isPartnerTyping, setIsPartnerTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [, setLocation] = useLocation();
 
   // Simple WebSocket connection
@@ -57,6 +60,9 @@ export default function SimpleChat() {
         
         if (data.type === 'new_message') {
           setMessages(prev => [...prev, data.message]);
+        } else if (data.type === 'user_typing') {
+          console.log('Typing event received:', data);
+          setIsPartnerTyping(data.isTyping);
         } else if (data.type === 'chat_ended') {
           console.log('Chat ended by other user:', data.message);
           // Add system message
@@ -128,6 +134,9 @@ export default function SimpleChat() {
     const messageToSend = messageInput.trim();
     setMessageInput(""); // Clear input immediately for better UX
     
+    // Stop typing indicator when sending message
+    stopTyping();
+    
     // Keep focus on input field to maintain mobile keyboard
     setTimeout(() => {
       if (inputRef.current) {
@@ -146,6 +155,9 @@ export default function SimpleChat() {
       
       setMessages(prev => [...prev, userMessage]);
       
+      // Show AI typing indicator
+      setIsPartnerTyping(true);
+      
       // Send to AI
       try {
         const response = await fetch('/api/ai-chat', {
@@ -155,6 +167,10 @@ export default function SimpleChat() {
         });
         
         const data = await response.json();
+        
+        // Hide AI typing indicator and show message
+        setIsPartnerTyping(false);
+        
         const aiMessage = {
           id: Date.now().toString() + '-ai',
           content: data.response,
@@ -164,9 +180,10 @@ export default function SimpleChat() {
         
         setTimeout(() => {
           setMessages(prev => [...prev, aiMessage]);
-        }, 500); // Small delay for natural feel
+        }, 300); // Small delay for natural feel
       } catch (error) {
         console.error('AI chat error:', error);
+        setIsPartnerTyping(false);
         const errorMessage = {
           id: Date.now().toString() + '-error',
           content: 'Sorry, connection\'s a bit slow here. What were you saying?',
@@ -183,6 +200,45 @@ export default function SimpleChat() {
       }));
     }
   }, [messageInput, currentRoom, isAIChat, username, matchedUser, ws]);
+  
+  const startTyping = useCallback(() => {
+    if (!isTyping && ws && !isAIChat) {
+      setIsTyping(true);
+      ws.send(JSON.stringify({ type: 'typing_start' }));
+    }
+    
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    // Set timeout to stop typing after 2 seconds of inactivity
+    typingTimeoutRef.current = setTimeout(() => {
+      stopTyping();
+    }, 2000);
+  }, [isTyping, ws, isAIChat]);
+  
+  const stopTyping = useCallback(() => {
+    if (isTyping && ws && !isAIChat) {
+      setIsTyping(false);
+      ws.send(JSON.stringify({ type: 'typing_stop' }));
+    }
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+  }, [isTyping, ws, isAIChat]);
+  
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessageInput(e.target.value);
+    
+    if (e.target.value.trim() && !isAIChat) {
+      startTyping();
+    } else if (!e.target.value.trim()) {
+      stopTyping();
+    }
+  }, [startTyping, stopTyping, isAIChat]);
 
   const startChat = () => {
     if (username) {
@@ -263,6 +319,10 @@ export default function SimpleChat() {
       endChat();
     }
     
+    // Clean up typing indicators
+    stopTyping();
+    setIsPartnerTyping(false);
+    
     if (pollRef.current) {
       clearInterval(pollRef.current);
       pollRef.current = null;
@@ -270,6 +330,10 @@ export default function SimpleChat() {
     if (aiTimeoutId) {
       clearTimeout(aiTimeoutId);
       setAiTimeoutId(null);
+    }
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
     }
     if (ws) {
       ws.close();
@@ -279,6 +343,7 @@ export default function SimpleChat() {
     setMessages([]);
     setIsLookingForMatch(false);
     setIsAIChat(false);
+    setIsTyping(false);
   };
 
   const handleUsernameSubmit = (userData: UserEntry) => {
@@ -396,6 +461,20 @@ export default function SimpleChat() {
             )}
           </div>
 
+          {/* Typing Indicator */}
+          {isPartnerTyping && (
+            <div className="px-4 sm:px-6 py-2 mx-2 sm:mx-4">
+              <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                <span>{matchedUser} is typing</span>
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Message Input - Premium Compact */}
           <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4 mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-b-xl shadow-sm">
             <div className="flex space-x-2 sm:space-x-3">
@@ -409,7 +488,8 @@ export default function SimpleChat() {
               <Input
                 ref={inputRef}
                 value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
+                onChange={handleInputChange}
+                onBlur={stopTyping}
                 placeholder="Type your message..."
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
