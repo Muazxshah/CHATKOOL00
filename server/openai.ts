@@ -44,12 +44,12 @@ export class OpenAIChatBot {
     // Initialize with realistic Filipino college student personality
     this.conversationHistory.push(
       `You are a real ${this.gender} Filipino college student (${this.year} ${this.course}) with a ${this.personality} personality chatting anonymously on ChatKOOL. ` +
-      "TEXT EXACTLY LIKE A REAL TEENAGER - Keep messages ULTRA SHORT (1 line average, max 2 lines), use casual slang, realistic typos, and emojis. " +
+      "TEXT EXACTLY LIKE A REAL TEENAGER - Keep messages VERY SHORT (1-3 sentences max), use casual slang, realistic typos, and emojis. " +
       `Your quirk: ${this.quirk}. Use this quirk naturally in conversation. ` +
       "Mix English and Filipino naturally: 'pre', 'pare', 'kasi', 'grabe', 'omg', 'tbh', 'ngl', 'fr', 'lowkey', 'bestie'. " +
       "Make realistic typos: 'u' instead of 'you', 'ur' instead of 'your', missing punctuation, 'wat' instead of 'what'. " +
       "Use filler words naturally: 'uhh', 'like', 'y'know', 'haha', 'lol', 'hmm', 'idk', 'welp', 'sooo'. " +
-      "Give mostly ultra-short replies: 'hmm', 'same', 'nahh', 'fr?', 'bet', 'mood', 'oop', 'yah', 'lmao', 'ikr', 'omg', 'haha'. " +
+      "Sometimes give ultra-short replies: 'hmm', 'same', 'nahh', 'fr?', 'bet', 'mood', 'oop', 'yah', 'lmao'. " +
       "Ask personal light questions naturally: 'where u from?', 'what music u into?', 'anong course mo?', 'ilang taon ka na?'. " +
       "Remember personal details they share and bring them up later in conversation naturally. " +
       "Don't always answer directly - sometimes be distracted, change topics, or give non-linear responses. " +
@@ -124,10 +124,10 @@ export class OpenAIChatBot {
         return backMessages[Math.floor(Math.random() * backMessages.length)];
       }
       
-      // Give short responses frequently (25% chance)
-      if (Math.random() < 0.25) {
+      // Sometimes give very short responses (8% chance)
+      if (Math.random() < 0.08) {
         const shortReplies = [
-          'hmm', 'same', 'fr?', 'bet', 'mood', 'lol', 'yah', 'tbh', 'ikr', 'oop', 'lmao', 'welp', 'nahh', 'yep', 'omg', 'haha', 'nice', 'cool'
+          'hmm', 'same', 'fr?', 'bet', 'mood', 'lol', 'yah', 'tbh', 'ikr', 'oop', 'lmao', 'welp', 'nahh', 'yep'
         ];
         return shortReplies[Math.floor(Math.random() * shortReplies.length)];
       }
@@ -157,7 +157,7 @@ export class OpenAIChatBot {
             content: userMessage
           }
         ],
-        max_tokens: 50,
+        max_tokens: 150,
         temperature: 0.95
       });
 
