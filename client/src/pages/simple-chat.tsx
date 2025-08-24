@@ -438,7 +438,7 @@ export default function SimpleChat() {
           </div>
 
           {/* Messages Area - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 flex flex-col" style={{scrollBehavior: 'smooth'}}>
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
@@ -473,26 +473,25 @@ export default function SimpleChat() {
                 </div>
               ))
             )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Typing Indicator - Debug: {JSON.stringify(isPartnerTyping)} */}
-          {isPartnerTyping && (
-            <div className="px-4 py-2 bg-yellow-50 border border-yellow-200">
-              <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                <div className="max-w-xs px-4 py-2 bg-blue-100 rounded-2xl border border-blue-200">
-                  <div className="flex items-center space-x-1">
-                    <span className="text-xs">{matchedUser} is typing</span>
+            
+            {/* Typing Indicator - Inside messages area */}
+            {isPartnerTyping && (
+              <div className="px-0 py-2 flex items-start">
+                <div className="max-w-xs px-3 py-2 bg-gray-200 rounded-2xl">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-600">{matchedUser} is typing</span>
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                      <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                      <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
 
           {/* Message Input - Fixed Bottom */}
           <div className="bg-white border-t border-gray-200 px-4 py-3 flex-shrink-0">
