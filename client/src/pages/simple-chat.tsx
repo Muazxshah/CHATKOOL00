@@ -452,7 +452,7 @@ export default function SimpleChat() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-x-hidden max-w-full sm:mobile-optimized" style={{height: 'calc(100vh - env(safe-area-inset-top, 0px))', minHeight: 'calc(100vh - 60px)'}}>
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-hidden w-full">
       {/* High CPC Sticky Ad - Chat Page Top */}
       <div className="bg-gray-50 py-2 px-4 border-b border-gray-200">
         <div className="max-w-4xl mx-auto flex justify-center">
@@ -497,9 +497,9 @@ export default function SimpleChat() {
 
       {/* Premium Chat Interface */}
       {currentRoom && matchedUser ? (
-        <div className={`flex-1 flex flex-col max-w-4xl mx-auto w-full transition-all duration-200 mobile-chat-container ${isKeyboardOpen ? 'compact-mode' : ''}`}>
+        <div className={`flex-1 flex flex-col w-full transition-all duration-200 mobile-chat-container ${isKeyboardOpen ? 'compact-mode' : ''}`}>
           {/* Chat Header - Compact Premium */}
-          <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 py-3 mx-2 sm:mx-4 mt-2 sm:mt-4 rounded-t-xl shadow-sm chat-header mobile-chat-header">
+          <div className="bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 py-3 shadow-sm chat-header mobile-chat-header flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
@@ -515,7 +515,7 @@ export default function SimpleChat() {
           </div>
 
           {/* In-Chat Ad Banner - High Engagement Placement */}
-          <div className="bg-gray-50 py-2 mx-2 sm:mx-4 border-b border-gray-100">
+          <div className="bg-gray-50 py-2 border-b border-gray-100 flex-shrink-0">
             <div className="flex justify-center">
               <ins className="adsbygoogle"
                    style={{display: 'inline-block', width: '320px', height: '50px'}}
@@ -525,7 +525,7 @@ export default function SimpleChat() {
           </div>
 
           {/* Messages - Compact Design */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-2 mx-2 sm:mx-4 bg-white/50 backdrop-blur-sm space-y-2 messages-area mobile-messages-area">
+          <div className="flex-1 overflow-y-auto px-4 py-2 bg-white/50 backdrop-blur-sm space-y-2 messages-area mobile-messages-area">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
@@ -588,7 +588,7 @@ export default function SimpleChat() {
           )}
 
           {/* Message Input - Premium Compact */}
-          <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4 mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-b-xl shadow-sm message-input-area mobile-message-input-area">
+          <div className="bg-white/90 backdrop-blur-sm border-t border-gray-100 px-4 py-3 shadow-sm message-input-area mobile-message-input-area flex-shrink-0">
             <div className="flex space-x-2 sm:space-x-3">
               <Button 
                 onClick={startNewChat}

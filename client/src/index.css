@@ -184,37 +184,42 @@ html, body {
 /* Mobile optimization with dynamic keyboard handling */
 @media (max-width: 640px) {
   .mobile-chat-container {
-    height: calc(100vh - 80px) !important; /* Account for Chrome address bar */
-    max-height: calc(100vh - 80px) !important;
+    height: calc(100vh - 160px) !important; /* Account for header + ads */
+    max-height: calc(100vh - 160px) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
     transition: height 0.2s ease-in-out !important;
+    margin: 0 !important;
   }
   
   .mobile-chat-header {
     flex-shrink: 0 !important;
-    padding: 0.5rem !important;
+    padding: 0.75rem 1rem !important;
     min-height: auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
   }
   
   .mobile-messages-area {
     flex: 1 !important;
     overflow-y: auto !important;
-    padding: 0.5rem !important;
+    padding: 0.75rem 1rem !important;
     scroll-behavior: smooth !important;
     transition: all 0.2s ease-in-out !important;
-    min-height: 100px !important;
+    min-height: 200px !important;
+    margin: 0 !important;
   }
   
   .mobile-message-input-area {
     flex-shrink: 0 !important;
-    padding: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
     margin: 0 !important;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(10px) !important;
     border-top: 1px solid rgba(229, 231, 235, 0.3) !important;
     transition: all 0.2s ease-in-out !important;
+    border-radius: 0 !important;
   }
   
   .mobile-typing-indicator {
@@ -230,8 +235,8 @@ html, body {
   
   /* Enhanced keyboard detection - when keyboard opens */
   .compact-mode .mobile-chat-container {
-    height: calc(100vh - 400px) !important; /* Chrome bar + keyboard space */
-    max-height: calc(100vh - 400px) !important;
+    height: calc(100vh - 350px) !important; /* Chrome bar + keyboard space */
+    max-height: calc(100vh - 350px) !important;
   }
   
   .compact-mode .mobile-messages-area {
