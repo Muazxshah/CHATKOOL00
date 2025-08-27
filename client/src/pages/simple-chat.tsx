@@ -436,6 +436,18 @@ export default function SimpleChat() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-x-hidden max-w-full sm:mobile-optimized" style={{height: 'calc(100vh - env(safe-area-inset-top, 0px))', minHeight: 'calc(100vh - 60px)'}}>
+      {/* High CPC Sticky Ad - Chat Page Top */}
+      <div className="bg-gray-50 py-2 px-4 border-b border-gray-200">
+        <div className="max-w-4xl mx-auto flex justify-center">
+          <ins className="adsbygoogle"
+               style={{display: 'block'}}
+               data-ad-client="ca-pub-5411070266437879"
+               data-ad-slot="6789012345"
+               data-ad-format="banner"
+               data-full-width-responsive="true"></ins>
+        </div>
+      </div>
+
       {/* Premium Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
         <div className="flex items-center justify-between">
@@ -592,6 +604,16 @@ export default function SimpleChat() {
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center p-8">
+          {/* High CPC Ad - Waiting Screen */}
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-full max-w-md">
+            <ins className="adsbygoogle"
+                 style={{display: 'block'}}
+                 data-ad-client="ca-pub-5411070266437879"
+                 data-ad-slot="7890123456"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          </div>
+          
           <div className="text-center max-w-md mx-auto">
             {isLookingForMatch ? (
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100">

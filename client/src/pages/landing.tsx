@@ -52,6 +52,16 @@ export default function Landing() {
         </div>
         
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 relative z-10 w-full overflow-hidden">
+          {/* High CPC Ad - Above the Fold Hero */}
+          <div className="w-full max-w-4xl mx-auto mb-8 flex justify-center">
+            <ins className="adsbygoogle"
+                 style={{display: 'block'}}
+                 data-ad-client="ca-pub-5411070266437879"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          </div>
+          
           <div className="text-center px-4">
             <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
               <span className="block">CHAT</span>
@@ -95,6 +105,18 @@ export default function Landing() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* High CPC Ad - Between Hero and Features */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 flex justify-center">
+          <ins className="adsbygoogle"
+               style={{display: 'block'}}
+               data-ad-client="ca-pub-5411070266437879"
+               data-ad-slot="2345678901"
+               data-ad-format="rectangle"
+               data-full-width-responsive="true"></ins>
         </div>
       </section>
 
@@ -151,6 +173,18 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* High CPC Ad - Between Features and How It Works */}
+      <section className="py-8 bg-white">
+        <div className="max-w-4xl mx-auto px-4 flex justify-center">
+          <ins className="adsbygoogle"
+               style={{display: 'block'}}
+               data-ad-client="ca-pub-5411070266437879"
+               data-ad-slot="3456789012"
+               data-ad-format="leaderboard"
+               data-full-width-responsive="true"></ins>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section id="how-it-works" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -195,6 +229,18 @@ export default function Landing() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* High CPC Ad - Between How It Works and Safety */}
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 flex justify-center">
+          <ins className="adsbygoogle"
+               style={{display: 'block'}}
+               data-ad-client="ca-pub-5411070266437879"
+               data-ad-slot="4567890123"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
         </div>
       </section>
 
@@ -269,6 +315,18 @@ export default function Landing() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* High CPC Ad - Between Safety and FAQ */}
+      <section className="py-8 bg-white">
+        <div className="max-w-4xl mx-auto px-4 flex justify-center">
+          <ins className="adsbygoogle"
+               style={{display: 'block'}}
+               data-ad-client="ca-pub-5411070266437879"
+               data-ad-slot="5678901234"
+               data-ad-format="rectangle"
+               data-full-width-responsive="true"></ins>
         </div>
       </section>
 
