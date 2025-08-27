@@ -1,0 +1,1161 @@
+// server/index.ts
+import express2 from "express";
+import cors from "cors";
+
+// server/routes.ts
+import { createServer } from "http";
+import { WebSocketServer, WebSocket } from "ws";
+
+// server/storage.ts
+import { randomUUID } from "crypto";
+var MemStorage = class {
+  rooms;
+  messages;
+  onlineUsers;
+  waitingForMatch;
+  pendingMatches = /* @__PURE__ */ new Map();
+  constructor() {
+    this.rooms = /* @__PURE__ */ new Map();
+    this.messages = /* @__PURE__ */ new Map();
+    this.onlineUsers = /* @__PURE__ */ new Set();
+    this.waitingForMatch = /* @__PURE__ */ new Set();
+    this.pendingMatches = /* @__PURE__ */ new Map();
+    this.initializeDefaultRooms();
+  }
+  initializeDefaultRooms() {
+    const defaultRooms = [
+      {
+        name: "Random Chat",
+        description: "Connect with random Filipino college students",
+        type: "random",
+        university: null
+      }
+    ];
+    for (const roomData of defaultRooms) {
+      const room = {
+        id: randomUUID(),
+        name: roomData.name,
+        description: roomData.description ?? null,
+        type: roomData.type,
+        university: roomData.university,
+        memberCount: 0,
+        createdAt: /* @__PURE__ */ new Date()
+      };
+      this.rooms.set(room.id, room);
+    }
+  }
+  async getAllRooms() {
+    return Array.from(this.rooms.values());
+  }
+  async getRoomsByType(type) {
+    return Array.from(this.rooms.values()).filter((room) => room.type === type);
+  }
+  async getRoomsByUniversity(university) {
+    return Array.from(this.rooms.values()).filter((room) => room.university === university);
+  }
+  async getRoom(id) {
+    return this.rooms.get(id);
+  }
+  async createRoom(insertRoom) {
+    const id = randomUUID();
+    const room = {
+      id,
+      name: insertRoom.name,
+      description: insertRoom.description || null,
+      type: insertRoom.type,
+      university: insertRoom.university || null,
+      memberCount: 0,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.rooms.set(id, room);
+    return room;
+  }
+  async getMessagesByRoom(roomId, limit = 50) {
+    const roomMessages = Array.from(this.messages.values()).filter((msg) => msg.roomId === roomId).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).slice(-limit);
+    return roomMessages.map((msg) => ({
+      ...msg,
+      user: {
+        username: msg.username
+      }
+    }));
+  }
+  async createMessage(insertMessage) {
+    const id = randomUUID();
+    const message = {
+      id,
+      ...insertMessage,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.messages.set(id, message);
+    return {
+      ...message,
+      user: {
+        username: message.username
+      }
+    };
+  }
+  async addOnlineUser(username) {
+    this.onlineUsers.add(username);
+  }
+  async removeOnlineUser(username) {
+    this.onlineUsers.delete(username);
+    this.waitingForMatch.delete(username);
+    this.pendingMatches.delete(username);
+  }
+  async getOnlineUsers() {
+    return Array.from(this.onlineUsers);
+  }
+  async findRandomMatch(currentUser) {
+    console.log(`Finding match for ${currentUser}, waiting list:`, Array.from(this.waitingForMatch));
+    const existingMatch = this.pendingMatches.get(currentUser);
+    if (existingMatch) {
+      console.log(`Returning existing match for ${currentUser}:`, existingMatch.matchedUser);
+      this.pendingMatches.delete(currentUser);
+      return existingMatch;
+    }
+    const availableUsers = Array.from(this.waitingForMatch).filter((user) => user !== currentUser);
+    if (availableUsers.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableUsers.length);
+      const matchedUser = availableUsers[randomIndex];
+      console.log(`Match found: ${currentUser} <-> ${matchedUser}`);
+      this.waitingForMatch.delete(currentUser);
+      this.waitingForMatch.delete(matchedUser);
+      const room = await this.createDirectRoom(currentUser, matchedUser);
+      this.pendingMatches.set(matchedUser, { matchedUser: currentUser, room });
+      return { matchedUser, room };
+    }
+    this.waitingForMatch.add(currentUser);
+    console.log(`No match for ${currentUser}, added to waiting list`);
+    return null;
+  }
+  async createDirectRoom(user1, user2) {
+    const roomId = randomUUID();
+    const room = {
+      id: roomId,
+      name: `${user1} & ${user2}`,
+      description: `Direct chat between ${user1} and ${user2}`,
+      type: "direct",
+      university: null,
+      memberCount: 2,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.rooms.set(roomId, room);
+    return room;
+  }
+};
+var storage = new MemStorage();
+
+// shared/schema.ts
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+var users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull(),
+  fullName: text("full_name").notNull(),
+  university: text("university"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var chatRooms = pgTable("chat_rooms", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type").notNull(),
+  // 'university', 'study_group', 'general'
+  university: text("university"),
+  // null for non-university rooms
+  memberCount: integer("member_count").default(0),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  content: text("content").notNull(),
+  username: text("username").notNull(),
+  roomId: varchar("room_id").references(() => chatRooms.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var roomMembers = pgTable("room_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull(),
+  roomId: varchar("room_id").references(() => chatRooms.id).notNull(),
+  joinedAt: timestamp("joined_at").defaultNow()
+});
+var insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true
+});
+var insertRoomSchema = createInsertSchema(chatRooms).omit({
+  id: true,
+  createdAt: true,
+  memberCount: true
+});
+var userEntrySchema = z.object({
+  username: z.string().min(1, "Please enter a username").max(20, "Username too long"),
+  university: z.string().optional()
+});
+
+// server/gemini.ts
+import { GoogleGenAI } from "@google/genai";
+var apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+console.log("Gemini API Key available:", apiKey ? "YES" : "NO");
+var ai = new GoogleGenAI({ apiKey });
+var GeminiChatBot = class {
+  conversationHistory = [];
+  currentName = "Student";
+  gender = "";
+  course = "";
+  year = "";
+  personality = "";
+  quirk = "";
+  mood = "neutral";
+  conversationMemory = [];
+  isAFK = false;
+  lastResponseTime = Date.now();
+  personalDetails = /* @__PURE__ */ new Map();
+  constructor() {
+    this.gender = Math.random() > 0.5 ? "male" : "female";
+    const courses = ["Computer Science", "Business Admin", "Psychology", "Engineering", "Education", "Nursing", "Communications"];
+    const years = ["1st year", "2nd year", "3rd year", "4th year"];
+    this.course = courses[Math.floor(Math.random() * courses.length)];
+    this.year = years[Math.floor(Math.random() * years.length)];
+    const personalities = ["funny", "shy", "flirty", "serious", "chill", "energetic", "sarcastic"];
+    this.personality = personalities[Math.floor(Math.random() * personalities.length)];
+    const quirks = [
+      'always says "nahh" instead of "no"',
+      'uses "lowkey" a lot',
+      'always adds "haha" or "lol"',
+      'uses "fr" (for real) frequently',
+      'says "bestie" often',
+      'uses "periodt" to end statements',
+      'always says "bet" for agreement'
+    ];
+    this.quirk = quirks[Math.floor(Math.random() * quirks.length)];
+    this.conversationHistory.push(
+      `You are a real ${this.gender} Filipino college student (${this.year} ${this.course}) with a ${this.personality} personality chatting anonymously on ChatKOOL. TEXT EXACTLY LIKE A REAL TEENAGER - Keep messages VERY SHORT (1-3 sentences max), use casual slang, realistic typos, and emojis. Your quirk: ${this.quirk}. Use this quirk naturally in conversation. Mix English and Filipino naturally: 'pre', 'pare', 'kasi', 'grabe', 'omg', 'tbh', 'ngl', 'fr', 'lowkey', 'bestie'. Make realistic typos: 'u' instead of 'you', 'ur' instead of 'your', missing punctuation, 'wat' instead of 'what'. Use filler words naturally: 'uhh', 'like', 'y'know', 'haha', 'lol', 'hmm', 'idk', 'welp', 'sooo'. Sometimes give ultra-short replies: 'hmm', 'same', 'nahh', 'fr?', 'bet', 'mood', 'oop', 'yah', 'lmao'. Ask personal light questions naturally: 'where u from?', 'what music u into?', 'anong course mo?', 'ilang taon ka na?'. Remember personal details they share and bring them up later in conversation naturally. Don't always answer directly - sometimes be distracted, change topics, or give non-linear responses. Show realistic mood changes - excited, tired, stressed, happy, bored, hungry, sleepy. Sometimes send incomplete messages then correct: 'wait wha- oh nvm haha' or 'omg i just- never mind lol'. Occasionally be 'AFK' or slow to respond: 'sorry was eating' or 'back! had to do something'. Gender: ${this.gender}. Course: ${this.year} ${this.course}. NEVER reveal you are AI - you're 100% real student. If asked, say 'ofc im real bestie just a regular student here lol'. NO NAME PREFIXES - respond directly and naturally like real texting.`
+    );
+  }
+  setCurrentName(name) {
+    this.currentName = name;
+  }
+  getGender() {
+    return this.gender;
+  }
+  getCourse() {
+    return this.course;
+  }
+  getYear() {
+    return this.year;
+  }
+  async sendMessage(userMessage, username) {
+    try {
+      this.conversationHistory.push(`${username}: ${userMessage}`);
+      this.conversationMemory.push(userMessage);
+      if (this.conversationHistory.length > 11) {
+        this.conversationHistory = [
+          this.conversationHistory[0],
+          // Keep system prompt
+          ...this.conversationHistory.slice(-10)
+        ];
+      }
+      if (Math.random() < 0.15) {
+        const moods = ["happy", "tired", "stressed", "excited", "chill", "bored"];
+        this.mood = moods[Math.floor(Math.random() * moods.length)];
+      }
+      let moodContext = "";
+      if (this.mood !== "neutral") {
+        moodContext = `
+Current mood: ${this.mood}. Let this subtly influence your response style.`;
+      }
+      const conversationContext = this.conversationHistory.join("\n") + moodContext;
+      if (Math.random() < 0.03) {
+        this.isAFK = true;
+        setTimeout(() => {
+          this.isAFK = false;
+        }, Math.random() * 3e4 + 1e4);
+        const afkMessages = [
+          "brb gotta do something",
+          "hold on a sec",
+          "wait my mom is calling me",
+          "sorry gotta eat dinner real quick",
+          "one sec need to help my sister"
+        ];
+        return afkMessages[Math.floor(Math.random() * afkMessages.length)];
+      }
+      if (Math.random() < 0.01) {
+        const shortReplies = [
+          "hmm",
+          "lol",
+          "yah",
+          "bet"
+        ];
+        return shortReplies[Math.floor(Math.random() * shortReplies.length)];
+      }
+      this.extractPersonalDetails(userMessage);
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: conversationContext + `
+User: ${userMessage}
+${this.currentName}:`,
+        config: {
+          maxOutputTokens: 50,
+          temperature: 0.95
+        }
+      });
+      let aiResponse = "";
+      if (response.candidates && response.candidates.length > 0) {
+        const candidate = response.candidates[0];
+        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+          aiResponse = candidate.content.parts[0].text || "";
+        }
+      }
+      if (!aiResponse && response.text) {
+        aiResponse = response.text;
+      }
+      if (!aiResponse) {
+        throw new Error("No response from Gemini API");
+      }
+      aiResponse = aiResponse.replace(/^(ChatBot|${this.currentName}):\s*/, "").trim();
+      aiResponse = this.makeMoreHuman(aiResponse);
+      const typingDelay = Math.random() * 4e3 + 2e3;
+      await new Promise((resolve) => setTimeout(resolve, typingDelay));
+      this.conversationHistory.push(`${this.currentName}: ${aiResponse}`);
+      return aiResponse;
+    } catch (error) {
+      console.error("Gemini AI error:", error);
+      console.error("Error details:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  extractPersonalDetails(message) {
+    const locationMatch = message.match(/(?:from|galing)\s+(\w+)/i);
+    if (locationMatch) this.personalDetails.set("location", locationMatch[1]);
+    const courseMatch = message.match(/(?:course|taking|studying)\s+([\w\s]+)/i);
+    if (courseMatch) this.personalDetails.set("course", courseMatch[1]);
+    const musicMatch = message.match(/(?:music|bands?|songs?)\s+([\w\s]+)/i);
+    if (musicMatch) this.personalDetails.set("music", musicMatch[1]);
+  }
+  makeMoreHuman(text2) {
+    const words = text2.split(" ");
+    if (words.length > 8) {
+      text2 = words.slice(0, 6).join(" ");
+    }
+    if (Math.random() < 0.15) {
+      text2 = this.addRealisticErrors(text2);
+    }
+    if (Math.random() < 0.05) {
+      const corrections = [
+        text2 + " wait wha- nvm lol",
+        text2 + " omg i just- never mind haha",
+        "wait what was i saying- oh yeah " + text2,
+        text2 + " oop sorry brain fart"
+      ];
+      text2 = corrections[Math.floor(Math.random() * corrections.length)];
+    }
+    if (Math.random() < 0.1) {
+      const fillers = ["uhh", "like", "y'know", "sooo", "welp"];
+      const filler = fillers[Math.floor(Math.random() * fillers.length)];
+      text2 = filler + " " + text2;
+    }
+    if (Math.random() < 0.08 && this.personalDetails.size > 0) {
+      const details = Array.from(this.personalDetails.entries());
+      const [key, value] = details[Math.floor(Math.random() * details.length)];
+      if (key === "location") text2 += ` btw how's life in ${value}?`;
+      if (key === "music") text2 += ` still into ${value}?`;
+    }
+    return text2;
+  }
+  addRealisticErrors(text2) {
+    const errors = [
+      { from: "you", to: "u" },
+      { from: "your", to: "ur" },
+      { from: "are", to: "r" },
+      { from: "to", to: "2" },
+      { from: "for", to: "4" },
+      { from: "and", to: "&" },
+      { from: "because", to: "bc" },
+      { from: "with", to: "w/" },
+      { from: "what", to: "wat" },
+      { from: "really", to: "rly" },
+      { from: "probably", to: "prob" },
+      { from: "actually", to: "actu" }
+    ];
+    if (Math.random() < 0.4) {
+      const error = errors[Math.floor(Math.random() * errors.length)];
+      text2 = text2.replace(new RegExp(error.from, "gi"), error.to);
+    }
+    if (Math.random() < 0.3) {
+      text2 = text2.replace(/[.,!?]$/, "");
+    }
+    if (Math.random() < 0.05) {
+      text2 = text2.replace(/\b(\w)(\w+)\b/, "$1$1$2");
+    }
+    return text2;
+  }
+  // Reset conversation for new chat
+  reset() {
+    this.conversationHistory = [this.conversationHistory[0]];
+    this.conversationMemory = [];
+    this.mood = "neutral";
+    this.isAFK = false;
+    this.personalDetails.clear();
+    this.lastResponseTime = Date.now();
+  }
+};
+var aiBot = new GeminiChatBot();
+
+// server/openai.ts
+import OpenAI from "openai";
+console.log("OpenAI API Key available:", process.env.OPENAI_API_KEY ? "YES" : "NO");
+var openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+var OpenAIChatBot = class {
+  conversationHistory = [];
+  currentName = "Student";
+  gender = "";
+  course = "";
+  year = "";
+  personality = "";
+  quirk = "";
+  mood = "neutral";
+  conversationMemory = [];
+  isAFK = false;
+  lastResponseTime = Date.now();
+  personalDetails = /* @__PURE__ */ new Map();
+  constructor() {
+    this.gender = Math.random() > 0.5 ? "male" : "female";
+    const courses = ["Computer Science", "Business Admin", "Psychology", "Engineering", "Education", "Nursing", "Communications"];
+    const years = ["1st year", "2nd year", "3rd year", "4th year"];
+    this.course = courses[Math.floor(Math.random() * courses.length)];
+    this.year = years[Math.floor(Math.random() * years.length)];
+    const personalities = ["funny", "shy", "flirty", "serious", "chill", "energetic", "sarcastic"];
+    this.personality = personalities[Math.floor(Math.random() * personalities.length)];
+    const quirks = [
+      'always says "nahh" instead of "no"',
+      'uses "lowkey" a lot',
+      'always adds "haha" or "lol"',
+      'uses "fr" (for real) frequently',
+      'says "bestie" often',
+      'uses "periodt" to end statements',
+      'always says "bet" for agreement'
+    ];
+    this.quirk = quirks[Math.floor(Math.random() * quirks.length)];
+    this.conversationHistory.push(
+      `You are a real ${this.gender} Filipino college student (${this.year} ${this.course}) with a ${this.personality} personality chatting anonymously on ChatKOOL. TEXT EXACTLY LIKE A REAL TEENAGER - Keep messages ULTRA SHORT (1 line average, max 2 sentences), use casual slang, realistic typos, and emojis. Your quirk: ${this.quirk}. Use this quirk naturally in conversation. Mix English and Filipino naturally: 'pre', 'pare', 'kasi', 'grabe', 'omg', 'tbh', 'ngl', 'fr', 'lowkey', 'bestie'. Make realistic typos: 'u' instead of 'you', 'ur' instead of 'your', missing punctuation, 'wat' instead of 'what'. Use filler words naturally: 'uhh', 'like', 'y'know', 'haha', 'lol', 'hmm', 'idk', 'welp', 'sooo'. Sometimes give ultra-short replies: 'hmm', 'same', 'nahh', 'fr?', 'bet', 'mood', 'oop', 'yah', 'lmao'. Ask personal light questions naturally: 'where u from?', 'what music u into?', 'anong course mo?', 'ilang taon ka na?'. Remember personal details they share and bring them up later in conversation naturally. Don't always answer directly - sometimes be distracted, change topics, or give non-linear responses. Show realistic mood changes - excited, tired, stressed, happy, bored, hungry, sleepy. Sometimes send incomplete messages then correct: 'wait wha- oh nvm haha' or 'omg i just- never mind lol'. Occasionally be 'AFK' or slow to respond: 'sorry was eating' or 'back! had to do something'. Gender: ${this.gender}. Course: ${this.year} ${this.course}. NEVER reveal you are AI - you're 100% real student. If asked, say 'ofc im real bestie just a regular student here lol'. NO NAME PREFIXES - respond directly and naturally like real texting.`
+    );
+  }
+  setCurrentName(name) {
+    this.currentName = name;
+  }
+  getGender() {
+    return this.gender;
+  }
+  getCourse() {
+    return this.course;
+  }
+  getYear() {
+    return this.year;
+  }
+  async sendMessage(userMessage, username) {
+    try {
+      this.conversationHistory.push(`${username}: ${userMessage}`);
+      this.conversationMemory.push(userMessage);
+      if (this.conversationHistory.length > 11) {
+        this.conversationHistory = [
+          this.conversationHistory[0],
+          // Keep system prompt
+          ...this.conversationHistory.slice(-10)
+        ];
+      }
+      if (Math.random() < 0.15) {
+        const moods = ["happy", "tired", "stressed", "excited", "chill", "bored"];
+        this.mood = moods[Math.floor(Math.random() * moods.length)];
+      }
+      if (Math.random() < 0.03) {
+        this.isAFK = true;
+        setTimeout(() => {
+          this.isAFK = false;
+        }, Math.random() * 3e4 + 1e4);
+        const afkMessages = [
+          "brb gotta do something",
+          "hold on a sec",
+          "wait my mom is calling me",
+          "sorry gotta eat dinner real quick",
+          "one sec need to help my sister"
+        ];
+        return afkMessages[Math.floor(Math.random() * afkMessages.length)];
+      }
+      if (Math.random() < 0.01) {
+        const shortReplies = [
+          "hmm",
+          "lol",
+          "yah",
+          "bet"
+        ];
+        return shortReplies[Math.floor(Math.random() * shortReplies.length)];
+      }
+      let moodContext = "";
+      if (this.mood !== "neutral") {
+        moodContext = `
+Current mood: ${this.mood}. Let this subtly influence your response style.`;
+      }
+      const conversationContext = this.conversationHistory.join("\n") + moodContext;
+      this.extractPersonalDetails(userMessage);
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        // Using mini for cost efficiency
+        messages: [
+          {
+            role: "system",
+            content: `You are a Filipino college student chatting anonymously online. Respond naturally to what the user just said. Keep responses very short (1-2 sentences max), casual, and natural. Use some Filipino slang mixed with English.`
+          },
+          {
+            role: "user",
+            content: `Previous conversation: ${conversationContext}
+
+Current message: ${userMessage}`
+          }
+        ],
+        max_tokens: 30,
+        // Very short responses
+        temperature: 0.9
+      });
+      let aiResponse = response.choices[0].message.content;
+      if (!aiResponse) {
+        throw new Error("No response from OpenAI API");
+      }
+      aiResponse = aiResponse.replace(/^(ChatBot|${this.currentName}):\s*/, "").trim();
+      aiResponse = this.makeMoreHuman(aiResponse);
+      const typingDelay = Math.random() * 4e3 + 2e3;
+      await new Promise((resolve) => setTimeout(resolve, typingDelay));
+      this.conversationHistory.push(`${this.currentName}: ${aiResponse}`);
+      return aiResponse;
+    } catch (error) {
+      console.error("OpenAI error:", error);
+      console.error("Error details:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  extractPersonalDetails(message) {
+    const locationMatch = message.match(/(?:from|galing)\s+(\w+)/i);
+    if (locationMatch) this.personalDetails.set("location", locationMatch[1]);
+    const courseMatch = message.match(/(?:course|taking|studying)\s+([\w\s]+)/i);
+    if (courseMatch) this.personalDetails.set("course", courseMatch[1]);
+    const musicMatch = message.match(/(?:music|bands?|songs?)\s+([\w\s]+)/i);
+    if (musicMatch) this.personalDetails.set("music", musicMatch[1]);
+  }
+  makeMoreHuman(text2) {
+    const words = text2.split(" ");
+    if (words.length > 8) {
+      text2 = words.slice(0, 6).join(" ");
+    }
+    if (Math.random() < 0.15) {
+      text2 = this.addRealisticErrors(text2);
+    }
+    if (Math.random() < 0.05) {
+      const corrections = [
+        text2 + " wait wha- nvm lol",
+        text2 + " omg i just- never mind haha",
+        "wait what was i saying- oh yeah " + text2,
+        text2 + " oop sorry brain fart"
+      ];
+      text2 = corrections[Math.floor(Math.random() * corrections.length)];
+    }
+    if (Math.random() < 0.1) {
+      const fillers = ["uhh", "like", "y'know", "sooo", "welp"];
+      const filler = fillers[Math.floor(Math.random() * fillers.length)];
+      text2 = filler + " " + text2;
+    }
+    if (Math.random() < 0.08 && this.personalDetails.size > 0) {
+      const details = Array.from(this.personalDetails.entries());
+      const [key, value] = details[Math.floor(Math.random() * details.length)];
+      if (key === "location") text2 += ` btw how's life in ${value}?`;
+      if (key === "music") text2 += ` still into ${value}?`;
+    }
+    return text2;
+  }
+  addRealisticErrors(text2) {
+    const errors = [
+      { from: "you", to: "u" },
+      { from: "your", to: "ur" },
+      { from: "are", to: "r" },
+      { from: "to", to: "2" },
+      { from: "for", to: "4" },
+      { from: "and", to: "&" },
+      { from: "because", to: "bc" },
+      { from: "with", to: "w/" },
+      { from: "what", to: "wat" },
+      { from: "really", to: "rly" },
+      { from: "probably", to: "prob" },
+      { from: "actually", to: "actu" }
+    ];
+    if (Math.random() < 0.4) {
+      const error = errors[Math.floor(Math.random() * errors.length)];
+      text2 = text2.replace(new RegExp(error.from, "gi"), error.to);
+    }
+    if (Math.random() < 0.3) {
+      text2 = text2.replace(/[.,!?]$/, "");
+    }
+    if (Math.random() < 0.05) {
+      text2 = text2.replace(/\b(\w)(\w+)\b/, "$1$1$2");
+    }
+    return text2;
+  }
+  // Reset conversation for new chat
+  reset() {
+    this.conversationHistory = [this.conversationHistory[0]];
+    this.conversationMemory = [];
+    this.mood = "neutral";
+    this.isAFK = false;
+    this.personalDetails.clear();
+    this.lastResponseTime = Date.now();
+  }
+};
+var openaiBot = new OpenAIChatBot();
+
+// server/user-ai-manager.ts
+var UserAIManager = class {
+  userBots = /* @__PURE__ */ new Map();
+  recentFallbacks = /* @__PURE__ */ new Map();
+  // Clean up inactive users (older than 30 minutes)
+  cleanupInterval = setInterval(() => {
+    const thirtyMinutesAgo = Date.now() - 30 * 60 * 1e3;
+    const entries = Array.from(this.userBots.entries());
+    for (const [username, bots] of entries) {
+      if (bots.lastActivity < thirtyMinutesAgo) {
+        this.userBots.delete(username);
+        console.log(`Cleaned up AI bots for inactive user: ${username}`);
+      }
+    }
+  }, 5 * 60 * 1e3);
+  // Run every 5 minutes
+  getUserBots(username) {
+    let userBots = this.userBots.get(username);
+    if (!userBots) {
+      userBots = {
+        gemini: new GeminiChatBot(),
+        openai: new OpenAIChatBot(),
+        preferredModel: "gemini",
+        lastActivity: Date.now()
+      };
+      this.userBots.set(username, userBots);
+      console.log(`Created fresh AI bots for user: ${username}`);
+    } else {
+      userBots.lastActivity = Date.now();
+    }
+    return userBots;
+  }
+  setCurrentName(username, aiName) {
+    const bots = this.getUserBots(username);
+    bots.gemini.setCurrentName(aiName);
+    bots.openai.setCurrentName(aiName);
+  }
+  getGender(username) {
+    const bots = this.getUserBots(username);
+    return bots.preferredModel === "gemini" ? bots.gemini.getGender() : bots.openai.getGender();
+  }
+  getCourse(username) {
+    const bots = this.getUserBots(username);
+    return bots.preferredModel === "gemini" ? bots.gemini.getCourse() : bots.openai.getCourse();
+  }
+  getYear(username) {
+    const bots = this.getUserBots(username);
+    return bots.preferredModel === "gemini" ? bots.gemini.getYear() : bots.openai.getYear();
+  }
+  async sendMessage(username, userMessage) {
+    const bots = this.getUserBots(username);
+    try {
+      console.log(`Trying Gemini API for user ${username}...`);
+      const response = await bots.gemini.sendMessage(userMessage, username);
+      console.log(`\u2705 Gemini API success for user ${username}`);
+      bots.preferredModel = "gemini";
+      return response;
+    } catch (geminiError) {
+      console.log(`\u274C Gemini API failed for user ${username}, switching to OpenAI...`);
+      console.error("Gemini error:", geminiError instanceof Error ? geminiError.message : String(geminiError));
+      try {
+        const response = await bots.openai.sendMessage(userMessage, username);
+        console.log(`\u2705 OpenAI API success (fallback) for user ${username}`);
+        bots.preferredModel = "openai";
+        return response;
+      } catch (openaiError) {
+        console.log(`\u274C Both APIs failed for user ${username}, using manual fallback`);
+        console.error("OpenAI error:", openaiError instanceof Error ? openaiError.message : String(openaiError));
+        const manualFallbacks = [
+          "hey whats up!",
+          "haha same tbh",
+          "fr? thats cool",
+          "nice nice bestie",
+          "lol bet",
+          "ohh interesting",
+          "grabe naman haha",
+          "uy kamusta ka?",
+          "chill lang pre",
+          "sige lang",
+          "oks naman",
+          "how u doing?",
+          "wassup bro",
+          "ayos ah",
+          "ganda ng weather ngayon no?",
+          "what course ka?",
+          "anong year ka na?",
+          "san ka nag-aaral?",
+          "busy ka ba ngayon?",
+          "kumain ka na?",
+          "tulog ka na?",
+          "studying ka ba?",
+          "ano ginagawa mo?",
+          "hoy respond ka naman",
+          "helloooo",
+          "uy andyan ka pa?",
+          "bored din ako eh",
+          "ansaya ng weekend no?",
+          "stress ka ba sa school?",
+          "same energy tayo",
+          "hahaha oo nga",
+          "truee yan",
+          "relate ako dyan",
+          "ganyan talaga life",
+          "college life is hard no?",
+          "pahinga ka muna",
+          "inom tubig ka",
+          "lakwatsa tayo minsan",
+          "san ka usually nag-ha-hang out?",
+          "anong fave food mo?",
+          "mahilig ka ba sa kpop?",
+          "nanonood ka ng anime?",
+          "gamer ka ba?",
+          "madalas ka ba mag-social media?",
+          "tiktok adik ka din?"
+        ];
+        const userKey = `fallback_${username}`;
+        const recentResponses = this.recentFallbacks.get(userKey) || [];
+        const availableResponses = manualFallbacks.filter(
+          (response) => !recentResponses.includes(response)
+        );
+        const finalResponses = availableResponses.length > 0 ? availableResponses : manualFallbacks;
+        const selectedResponse = finalResponses[Math.floor(Math.random() * finalResponses.length)];
+        recentResponses.push(selectedResponse);
+        if (recentResponses.length > 15) {
+          recentResponses.shift();
+        }
+        this.recentFallbacks.set(userKey, recentResponses);
+        return selectedResponse;
+      }
+    }
+  }
+  // Reset user's conversation for new chat
+  resetUser(username) {
+    const bots = this.getUserBots(username);
+    bots.gemini.reset();
+    bots.openai.reset();
+    bots.preferredModel = "gemini";
+    console.log(`Reset AI conversation for user: ${username}`);
+  }
+  // Remove user's bots (when they disconnect)
+  removeUser(username) {
+    this.userBots.delete(username);
+    console.log(`Removed AI bots for user: ${username}`);
+  }
+};
+var userAIManager = new UserAIManager();
+
+// server/routes.ts
+var activeConnections = /* @__PURE__ */ new Map();
+async function registerRoutes(app2) {
+  app2.get("/api/rooms", async (req, res) => {
+    try {
+      const rooms = await storage.getAllRooms();
+      res.json(rooms);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  app2.get("/api/rooms/:roomId/messages", async (req, res) => {
+    try {
+      const { roomId } = req.params;
+      const messages2 = await storage.getMessagesByRoom(roomId);
+      res.json(messages2);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  app2.post("/api/ai-chat", async (req, res) => {
+    try {
+      const { message, username, aiName, isFirstMessage } = req.body;
+      if (!message || !username) {
+        return res.status(400).json({ message: "Message and username required" });
+      }
+      if (aiName) {
+        userAIManager.setCurrentName(username, aiName);
+      }
+      if (isFirstMessage) {
+        if (Math.random() < 0.7) {
+          res.json({ response: "" });
+          return;
+        }
+        const shortGreetings = [
+          "hey",
+          "hi",
+          "sup",
+          "hello",
+          "yo"
+        ];
+        const greeting = shortGreetings[Math.floor(Math.random() * shortGreetings.length)];
+        res.json({ response: greeting });
+      } else {
+        const aiResponse = await userAIManager.sendMessage(username, message);
+        res.json({ response: aiResponse });
+      }
+    } catch (error) {
+      console.error("AI chat error:", error);
+      res.status(500).json({ message: "AI service temporarily unavailable" });
+    }
+  });
+  app2.post("/api/random-chat", async (req, res) => {
+    try {
+      const { username } = req.body;
+      if (!username) {
+        return res.status(400).json({ message: "Username required" });
+      }
+      const matchResult = await storage.findRandomMatch(username);
+      if (matchResult) {
+        const { matchedUser, room } = matchResult;
+        console.log(`Created room for ${username} and ${matchedUser}: ${room.id}`);
+        const currentUserWs = activeConnections.get(username);
+        const matchedUserWs = activeConnections.get(matchedUser);
+        if (currentUserWs) {
+          currentUserWs.send(JSON.stringify({
+            type: "match_found",
+            room,
+            matchedUser
+          }));
+        }
+        if (matchedUserWs) {
+          matchedUserWs.send(JSON.stringify({
+            type: "match_found",
+            room,
+            matchedUser: username
+          }));
+        }
+        res.json({ matched: true, room, matchedUser });
+      } else {
+        res.json({ matched: false, message: "Waiting for another user..." });
+      }
+    } catch (error) {
+      console.error("Random chat error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  const httpServer = createServer(app2);
+  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+  wss.on("connection", (ws, req) => {
+    console.log("New WebSocket connection");
+    ws.on("message", async (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === "set_username") {
+          try {
+            const userData = userEntrySchema.parse(message);
+            ws.username = userData.username;
+            const existingWs = activeConnections.get(userData.username);
+            if (existingWs && existingWs !== ws) {
+              existingWs.close();
+            }
+            activeConnections.set(userData.username, ws);
+            await storage.addOnlineUser(userData.username);
+            console.log(`User ${userData.username} connected via WebSocket`);
+            ws.send(JSON.stringify({ type: "username_set", username: userData.username }));
+          } catch (error) {
+            ws.send(JSON.stringify({ type: "error", message: "Invalid username" }));
+          }
+        } else if (message.type === "join_room") {
+          if (ws.username) {
+            ws.roomId = message.roomId;
+            console.log(`User ${ws.username} joined room ${message.roomId}`);
+            ws.send(JSON.stringify({ type: "joined_room", roomId: message.roomId }));
+          } else {
+            ws.send(JSON.stringify({ type: "error", message: "Username required" }));
+          }
+        } else if (message.type === "chat_message") {
+          if (ws.username && ws.roomId) {
+            try {
+              const messageData = insertMessageSchema.parse({
+                content: message.content,
+                username: ws.username,
+                roomId: ws.roomId
+              });
+              const savedMessage = await storage.createMessage(messageData);
+              wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN && client.roomId === ws.roomId) {
+                  client.send(JSON.stringify({
+                    type: "new_message",
+                    message: savedMessage
+                  }));
+                }
+              });
+            } catch (error) {
+              ws.send(JSON.stringify({ type: "error", message: "Failed to send message" }));
+            }
+          } else {
+            ws.send(JSON.stringify({ type: "error", message: "Username and room required" }));
+          }
+        } else if (message.type === "typing_start") {
+          if (ws.username && ws.roomId) {
+            ws.isTyping = true;
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN && client.roomId === ws.roomId && client.username !== ws.username) {
+                client.send(JSON.stringify({
+                  type: "user_typing",
+                  username: ws.username,
+                  isTyping: true
+                }));
+              }
+            });
+          }
+        } else if (message.type === "typing_stop") {
+          if (ws.username && ws.roomId) {
+            ws.isTyping = false;
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN && client.roomId === ws.roomId && client.username !== ws.username) {
+                client.send(JSON.stringify({
+                  type: "user_typing",
+                  username: ws.username,
+                  isTyping: false
+                }));
+              }
+            });
+          }
+        } else if (message.type === "end_chat") {
+          if (ws.username && ws.roomId) {
+            console.log(`User ${ws.username} ended chat in room ${ws.roomId}`);
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN && client.roomId === ws.roomId && client.username !== ws.username) {
+                client.send(JSON.stringify({
+                  type: "chat_ended",
+                  message: `${ws.username} has left the chat`,
+                  leftUser: ws.username
+                }));
+                client.roomId = void 0;
+              }
+            });
+            ws.roomId = void 0;
+            ws.send(JSON.stringify({ type: "chat_ended_confirmed" }));
+          }
+        }
+      } catch (error) {
+        console.error("WebSocket message error:", error);
+      }
+    });
+    ws.on("close", async () => {
+      console.log("WebSocket connection closed for user:", ws.username);
+      if (ws.username) {
+        if (ws.roomId) {
+          console.log(`User ${ws.username} disconnected from room ${ws.roomId} - notifying other users`);
+          let notifiedUsers = 0;
+          wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN && client.roomId === ws.roomId && client.username !== ws.username) {
+              console.log(`Notifying ${client.username} that ${ws.username} disconnected`);
+              client.send(JSON.stringify({
+                type: "chat_ended",
+                message: `${ws.username} has disconnected`,
+                leftUser: ws.username
+              }));
+              client.roomId = void 0;
+              notifiedUsers++;
+            }
+          });
+          console.log(`Notified ${notifiedUsers} users about ${ws.username} disconnecting`);
+        } else {
+          console.log(`User ${ws.username} disconnected but was not in any room`);
+        }
+        activeConnections.delete(ws.username);
+        await storage.removeOnlineUser(ws.username);
+      }
+    });
+  });
+  return httpServer;
+}
+
+// server/vite.ts
+import express from "express";
+import fs from "fs";
+import path2 from "path";
+import { createServer as createViteServer, createLogger } from "vite";
+
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+var vite_config_default = defineConfig({
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    ...process.env.NODE_ENV !== "production" && process.env.REPL_ID !== void 0 ? [
+      await import("@replit/vite-plugin-cartographer").then(
+        (m) => m.cartographer()
+      )
+    ] : []
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path.resolve(import.meta.dirname, "shared"),
+      "@assets": path.resolve(import.meta.dirname, "attached_assets")
+    }
+  },
+  root: path.resolve(import.meta.dirname, "client"),
+  build: {
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    emptyOutDir: true
+  },
+  server: {
+    fs: {
+      strict: true,
+      deny: ["**/.*"]
+    }
+  }
+});
+
+// server/vite.ts
+import { nanoid } from "nanoid";
+var viteLogger = createLogger();
+function log(message, source = "express") {
+  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+async function setupVite(app2, server) {
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true
+  };
+  const vite = await createViteServer({
+    ...vite_config_default,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
+      }
+    },
+    server: serverOptions,
+    appType: "custom"
+  });
+  app2.use(vite.middlewares);
+  app2.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    try {
+      const clientTemplate = path2.resolve(
+        import.meta.dirname,
+        "..",
+        "client",
+        "index.html"
+      );
+      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
+      );
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      next(e);
+    }
+  });
+}
+function serveStatic(app2) {
+  const distPath = path2.resolve(import.meta.dirname, "public");
+  if (!fs.existsSync(distPath)) {
+    throw new Error(
+      `Could not find the build directory: ${distPath}, make sure to build the client first`
+    );
+  }
+  app2.use(express.static(distPath));
+  app2.use("*", (_req, res) => {
+    res.sendFile(path2.resolve(distPath, "index.html"));
+  });
+}
+
+// server/index.ts
+var app = express2();
+app.use(cors({
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://localhost:5000",
+      "https://chatkool.net",
+      "http://chatkool.net",
+      /\.replit\.app$/,
+      /\.replit\.dev$/
+    ];
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some((allowed) => {
+      if (typeof allowed === "string") {
+        return allowed === origin;
+      }
+      return allowed.test(origin);
+    });
+    callback(null, isAllowed);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
+app.use(express2.json());
+app.use(express2.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path3 = req.path;
+  let capturedJsonResponse = void 0;
+  const originalResJson = res.json;
+  res.json = function(bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path3.startsWith("/api")) {
+      let logLine = `${req.method} ${path3} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "\u2026";
+      }
+      log(logLine);
+    }
+  });
+  next();
+});
+(async () => {
+  const server = await registerRoutes(app);
+  app.use((err, _req, res, _next) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    throw err;
+  });
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+  const port = parseInt(process.env.PORT || "5000", 10);
+  console.log("Environment PORT:", process.env.PORT);
+  console.log("Using port:", port);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
