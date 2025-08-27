@@ -37,7 +37,6 @@ export default function Landing() {
           </div>
         </div>
       </header>
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 sm:pt-32 pb-12 sm:pb-20 overflow-hidden min-h-screen flex items-center max-w-full">
         {/* Animated Background Elements - Mobile Safe */}
@@ -78,9 +77,7 @@ export default function Landing() {
                 onClick={() => setLocation('/chat')}
                 className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 sm:px-16 py-4 sm:py-6 text-lg sm:text-2xl font-black rounded-full shadow-2xl transition-all duration-300 hover:shadow-orange-500/25 hover:scale-105 w-full sm:w-auto"
                 data-testid="button-start-chatting"
-              >
-                🚀 JOIN NOW
-              </Button>
+              >🚀 CHAT NOW</Button>
             </div>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 px-4">
               <div className="flex items-center gap-2">
@@ -103,7 +100,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* High CPC Ad - Between Hero and Features */}
       <section className="py-8 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 flex justify-center">
@@ -115,7 +111,6 @@ export default function Landing() {
                data-full-width-responsive="true"></ins>
         </div>
       </section>
-
       {/* Features Section */}
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -168,7 +163,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* High CPC Ad - Between Features and How It Works */}
       <section className="py-8 bg-white">
         <div className="max-w-4xl mx-auto px-4 flex justify-center">
@@ -180,7 +174,6 @@ export default function Landing() {
                data-full-width-responsive="true"></ins>
         </div>
       </section>
-
       {/* How It Works Section */}
       <section id="how-it-works" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -227,7 +220,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* High CPC Ad - Between How It Works and Safety */}
       <section className="py-8 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 flex justify-center">
@@ -239,7 +231,6 @@ export default function Landing() {
                data-full-width-responsive="true"></ins>
         </div>
       </section>
-
       {/* Safety Section */}
       <section id="safety" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -313,7 +304,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* High CPC Ad - Between Safety and FAQ */}
       <section className="py-8 bg-white">
         <div className="max-w-4xl mx-auto px-4 flex justify-center">
@@ -325,7 +315,6 @@ export default function Landing() {
                data-full-width-responsive="true"></ins>
         </div>
       </section>
-
       {/* FAQ Section for Long-tail SEO */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -387,7 +376,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -410,7 +398,6 @@ export default function Landing() {
           </p>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
