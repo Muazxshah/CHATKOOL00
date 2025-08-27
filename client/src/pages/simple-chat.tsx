@@ -506,15 +506,6 @@ export default function SimpleChat() {
             </div>
           </div>
 
-          {/* In-Chat Ad Banner - High Engagement Placement */}
-          <div className="bg-gray-50 py-2 border-b border-gray-100 flex-shrink-0">
-            <div className="flex justify-center">
-              <ins className="adsbygoogle"
-                   style={{display: 'inline-block', width: '320px', height: '50px'}}
-                   data-ad-client="ca-pub-5411070266437879"
-                   data-ad-slot="8059785974"></ins>
-            </div>
-          </div>
 
           {/* Messages - Compact Design */}
           <div className="flex-1 overflow-y-auto px-4 py-2 bg-white/50 backdrop-blur-sm space-y-2 messages-area mobile-messages-area">
