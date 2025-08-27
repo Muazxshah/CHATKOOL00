@@ -6,12 +6,8 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // Comprehensive SEO optimization
-    document.title = "ChatKOOL - Random Chat with Strangers Online | Anonymous Filipino Student Chat";
-    
-    // Remove dynamic meta tag manipulation since they're now static in HTML
-
-    // Remove redundant canonical URL and structured data since they're now in HTML head
+    // Set natural title
+    document.title = "ChatKOOL";
   }, []);
 
   return (
@@ -63,19 +59,19 @@ export default function Landing() {
           </div>
           
           <div className="text-center px-4">
-            <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight tracking-tight" data-testid="hero-title">
               <span className="block">CHAT</span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 animate-pulse">
                 KOOL
               </span>
-            </h2>
+            </h1>
             <p className="text-lg sm:text-2xl md:text-3xl text-blue-600 mb-4 sm:mb-6 font-bold tracking-wide px-2" data-testid="hero-tagline">
-              ANONYMOUS CHAT FOR FILIPINO STUDENTS
+              CONNECT WITH FILIPINO COLLEGE STUDENTS
             </p>
             <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4" data-testid="hero-description">
-              Free random chat with strangers online! Connect instantly with Filipino college students through anonymous stranger chat. 
-              Share experiences, get academic help, and make meaningful connections through our secure online chat platform. 
-              No registration required - completely free random chat with fellow students.
+              Connect with fellow college and university students across the Philippines! Share experiences, get academic help, 
+              discuss campus life, and make genuine friendships. Join our vibrant student community where every conversation matters. 
+              No registration needed - just jump in and start connecting!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16 px-4">
               <Button 
@@ -83,7 +79,7 @@ export default function Landing() {
                 className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 sm:px-16 py-4 sm:py-6 text-lg sm:text-2xl font-black rounded-full shadow-2xl transition-all duration-300 hover:shadow-orange-500/25 hover:scale-105 w-full sm:w-auto"
                 data-testid="button-start-chatting"
               >
-                🚀 START CHATTING NOW
+                🚀 JOIN NOW
               </Button>
             </div>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 px-4">
@@ -124,10 +120,10 @@ export default function Landing() {
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Best Random Chat with Strangers Online</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Filipino Students Choose ChatKOOL</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join thousands of Filipino college students who trust ChatKOOL for free random chat with strangers online, 
-              authentic stranger chat conversations, and meaningful anonymous online chat experiences
+              Join thousands of Filipino college students who connect, share experiences, and build lasting friendships 
+              through meaningful conversations in our supportive community
             </p>
           </div>
 
@@ -138,10 +134,10 @@ export default function Landing() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">100% Anonymous & Secure</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Safe & Private</h3>
               <p className="text-gray-600">
-                Share your thoughts and experiences freely without revealing your identity. 
-                Connect with fellow students in a secure, judgment-free environment.
+                Share your thoughts and experiences freely in a secure environment. 
+                Connect with fellow students while maintaining your privacy and safety.
               </p>
             </div>
 
@@ -151,10 +147,10 @@ export default function Landing() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Instant Connections</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Connections</h3>
               <p className="text-gray-600">
-                Get matched in seconds with another Filipino college student. 
-                No waiting, no barriers, just instant meaningful conversations.
+                Connect instantly with fellow Filipino college students. 
+                No waiting, no barriers, just genuine conversations and new friendships.
               </p>
             </div>
 
@@ -189,9 +185,9 @@ export default function Landing() {
       <section id="how-it-works" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How to Start Random Chat with Strangers Online</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">How to Join the Student Community</h2>
             <p className="text-xl text-gray-600">
-              Begin free random chat with strangers in just 3 simple steps - no registration needed for anonymous stranger chat online
+              Connect with fellow Filipino students in just 3 simple steps - no registration needed to start meaningful conversations
             </p>
           </div>
 
@@ -200,10 +196,10 @@ export default function Landing() {
               <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-3xl font-bold text-white">1</span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Enter Username for Random Chat with Strangers</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Choose Your Username</h3>
               <p className="text-gray-600 leading-relaxed">
-                Choose any username for free random chat with strangers online. No personal information required - 
-                start anonymous stranger chat while staying completely private in our online chat platform.
+                Pick any username to represent yourself in our student community. No personal information required - 
+                just choose a name and start connecting with fellow Filipino students.
               </p>
             </div>
 
@@ -211,10 +207,10 @@ export default function Landing() {
               <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-3xl font-bold text-white">2</span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Get Matched for Random Chat Online</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect with Students</h3>
               <p className="text-gray-600 leading-relaxed">
-                Our random chat system instantly connects you with Filipino students online for stranger chat. 
-                Free online chat matching pairs you with someone ready for random chat with strangers.
+                Our system instantly connects you with other Filipino college students. 
+                Get paired with someone who shares your interests and is ready for genuine conversation.
               </p>
             </div>
 
@@ -222,10 +218,10 @@ export default function Landing() {
               <div className="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-3xl font-bold text-white">3</span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Begin Free Random Chat with Strangers</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Start Meaningful Conversations</h3>
               <p className="text-gray-600 leading-relaxed">
-                Start your random chat with strangers online! Use our free stranger chat to share experiences, ask questions, get help, 
-                or enjoy fun online chat with fellow students in our anonymous chat community.
+                Begin connecting with fellow students! Share experiences, ask questions, get academic help, 
+                or simply enjoy fun conversations in our supportive student community.
               </p>
             </div>
           </div>
@@ -248,10 +244,10 @@ export default function Landing() {
       <section id="safety" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Safe Random Chat with Strangers Online Platform</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Safe Student Community Platform</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              ChatKOOL provides a safe, respectful random chat with strangers online space for Filipino students to connect through anonymous stranger chat, 
-              and learn from each other in our secure online chat environment
+              ChatKOOL provides a safe, respectful space for Filipino students to connect, 
+              share experiences, and learn from each other in our secure community environment
             </p>
           </div>
 
@@ -264,8 +260,8 @@ export default function Landing() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Anonymous & Private</h3>
-                  <p className="text-gray-600">Your personal information stays private. Chat without revealing your identity.</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Private & Secure</h3>
+                  <p className="text-gray-600">Your personal information stays protected. Connect safely without revealing your identity.</p>
                 </div>
               </div>
 
@@ -336,7 +332,7 @@ export default function Landing() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-gray-600">
-              Everything you need to know about random chat with strangers online at ChatKOOL
+              Everything you need to know about connecting with fellow Filipino students on ChatKOOL
             </p>
           </div>
 
@@ -396,18 +392,18 @@ export default function Landing() {
       <section className="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Start Free Random Chat with Strangers Online Now!
+            Join the Filipino Student Community Today!
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Join thousands of Filipino college students using ChatKOOL for free random chat with strangers online, 
-            anonymous stranger chat experiences, getting academic help, and building connections through secure online chat.
+            Join thousands of Filipino college students using ChatKOOL to connect, share experiences, 
+            get academic help, and build lasting friendships through our secure student community.
           </p>
           <Button 
             onClick={() => setLocation('/chat')}
             className="bg-white text-purple-600 hover:bg-gray-100 px-12 py-4 text-xl font-bold rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
             data-testid="button-final-cta"
           >
-            Start Chatting Now - It's Free!
+            Join Our Community - It's Free!
           </Button>
           <p className="text-blue-200 mt-6 text-sm">
             No registration • No personal info required • 100% Anonymous
