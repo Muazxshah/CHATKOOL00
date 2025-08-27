@@ -7,6 +7,12 @@ import UsernameModal from "@/components/username-modal";
 import { useLocation } from "wouter";
 import type { ChatRoom, UserEntry } from "@shared/schema";
 
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
+
 interface Message {
   id: string;
   content: string;
@@ -33,6 +39,17 @@ export default function SimpleChat() {
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [initialViewportHeight] = useState(window.innerHeight);
   const [, setLocation] = useLocation();
+  
+  // Initialize ads when chat room is set
+  useEffect(() => {
+    if (currentRoom && typeof window !== 'undefined' && window.adsbygoogle) {
+      try {
+        window.adsbygoogle.push({});
+      } catch (err) {
+        console.log('AdSense error:', err);
+      }
+    }
+  }, [currentRoom]);
   
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = useCallback(() => {
@@ -494,6 +511,16 @@ export default function SimpleChat() {
                 </div>
               </div>
               <div className="text-xs text-gray-500">Anonymous Chat</div>
+            </div>
+          </div>
+
+          {/* In-Chat Ad Banner - High Engagement Placement */}
+          <div className="bg-gray-50 py-2 mx-2 sm:mx-4 border-b border-gray-100">
+            <div className="flex justify-center">
+              <ins className="adsbygoogle"
+                   style={{display: 'inline-block', width: '320px', height: '50px'}}
+                   data-ad-client="ca-pub-5411070266437879"
+                   data-ad-slot="8059785974"></ins>
             </div>
           </div>
 
