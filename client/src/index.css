@@ -184,8 +184,8 @@ html, body {
 /* Mobile optimization with dynamic keyboard handling */
 @media (max-width: 640px) {
   .mobile-chat-container {
-    height: calc(100vh - 160px) !important; /* Account for header + ads */
-    max-height: calc(100vh - 160px) !important;
+    height: calc(100vh - 80px) !important; /* Account for header only */
+    max-height: calc(100vh - 80px) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;

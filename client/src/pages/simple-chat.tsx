@@ -42,12 +42,15 @@ export default function SimpleChat() {
   
   // Initialize ads when chat room is set
   useEffect(() => {
-    if (currentRoom && typeof window !== 'undefined' && window.adsbygoogle) {
-      try {
-        window.adsbygoogle.push({});
-      } catch (err) {
-        console.log('AdSense error:', err);
-      }
+    if (currentRoom && typeof window !== 'undefined') {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (err) {
+          console.log('AdSense error:', err);
+        }
+      }, 100);
     }
   }, [currentRoom]);
   
@@ -453,17 +456,6 @@ export default function SimpleChat() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col overflow-hidden w-full">
-      {/* High CPC Sticky Ad - Chat Page Top */}
-      <div className="bg-gray-50 py-2 px-4 border-b border-gray-200">
-        <div className="max-w-4xl mx-auto flex justify-center">
-          <ins className="adsbygoogle"
-               style={{display: 'block'}}
-               data-ad-client="ca-pub-5411070266437879"
-               data-ad-slot="6789012345"
-               data-ad-format="banner"
-               data-full-width-responsive="true"></ins>
-        </div>
-      </div>
 
       {/* Premium Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
