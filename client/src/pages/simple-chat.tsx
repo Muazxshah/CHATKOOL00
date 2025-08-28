@@ -133,7 +133,13 @@ export default function SimpleChat() {
         console.log('WebSocket message received:', data);
         
         if (data.type === 'new_message') {
-          setMessages(prev => [...prev, data.message]);
+          console.log('NEW MESSAGE RECEIVED:', data.message);
+          console.log('Current messages before adding:', messages.length);
+          setMessages(prev => {
+            const updated = [...prev, data.message];
+            console.log('Messages after adding:', updated.length);
+            return updated;
+          });
         } else if (data.type === 'user_typing') {
           console.log('Typing event received:', data);
           setIsPartnerTyping(data.isTyping);

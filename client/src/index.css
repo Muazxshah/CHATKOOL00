@@ -181,17 +181,19 @@ html, body {
   }
 }
 
-/* Mobile optimization with dynamic keyboard handling */
+/* Chat container optimization - ALL DEVICES */
+.mobile-chat-container {
+  height: calc(100vh - 80px) !important; /* Account for header only */
+  max-height: calc(100vh - 80px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  transition: height 0.2s ease-in-out !important;
+  margin: 0 !important;
+}
+
+/* Mobile-specific optimizations */
 @media (max-width: 640px) {
-  .mobile-chat-container {
-    height: calc(100vh - 80px) !important; /* Account for header only */
-    max-height: calc(100vh - 80px) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-    transition: height 0.2s ease-in-out !important;
-    margin: 0 !important;
-  }
   
   .mobile-chat-header {
     flex-shrink: 0 !important;
