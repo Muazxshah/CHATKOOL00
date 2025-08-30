@@ -88,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const matchResult = await storage.findRandomMatch(username);
       if (matchResult) {
         const { matchedUser, room } = matchResult;
-        console.log(`Created room for ${username} and ${matchedUser}: ${room.id}`);
+        // console.log(`Created room for ${username} and ${matchedUser}: ${room.id}`);
         
         // Notify both users via WebSocket if they're connected
         const currentUserWs = activeConnections.get(username);
@@ -126,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
 
   wss.on('connection', (ws: ChatWebSocket, req) => {
-    console.log('New WebSocket connection');
+    // console.log('New WebSocket connection');
 
     ws.on('message', async (data) => {
       try {
@@ -148,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             activeConnections.set(userData.username, ws);
             
             await storage.addOnlineUser(userData.username);
-            console.log(`User ${userData.username} connected via WebSocket`);
+            // console.log(`User ${userData.username} connected via WebSocket`);
             ws.send(JSON.stringify({ type: 'username_set', username: userData.username }));
           } catch (error) {
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid username' }));
@@ -157,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Join a room
           if (ws.username) {
             ws.roomId = message.roomId;
-            console.log(`User ${ws.username} joined room ${message.roomId}`);
+            // console.log(`User ${ws.username} joined room ${message.roomId}`);
             ws.send(JSON.stringify({ type: 'joined_room', roomId: message.roomId }));
           } else {
             ws.send(JSON.stringify({ type: 'error', message: 'Username required' }));
@@ -174,15 +174,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               const savedMessage = await storage.createMessage(messageData);
 
-              // Broadcast to all clients in the same room
-              wss.clients.forEach((client: ChatWebSocket) => {
-                if (client.readyState === WebSocket.OPEN && 
-                    client.roomId === ws.roomId) {
-                  client.send(JSON.stringify({
-                    type: 'new_message',
-                    message: savedMessage
-                  }));
-                }
+              // Optimized broadcast - only to room participants
+              const roomClients = Array.from(wss.clients).filter((client: ChatWebSocket) => 
+                client.readyState === WebSocket.OPEN && client.roomId === ws.roomId
+              );
+              
+              roomClients.forEach((client: ChatWebSocket) => {
+                client.send(JSON.stringify({
+                  type: 'new_message',
+                  message: savedMessage
+                }));
               });
             } catch (error) {
               ws.send(JSON.stringify({ type: 'error', message: 'Failed to send message' }));

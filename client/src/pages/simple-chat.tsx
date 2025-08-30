@@ -130,12 +130,12 @@ export default function SimpleChat() {
 
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('WebSocket message received:', data);
+        // console.log('WebSocket message received:', data);
         
         if (data.type === 'new_message') {
           setMessages(prev => [...prev, data.message]);
         } else if (data.type === 'user_typing') {
-          console.log('Typing event received:', data);
+          // console.log('Typing event received:', data);
           setIsPartnerTyping(data.isTyping);
         } else if (data.type === 'chat_ended') {
           console.log('Chat ended by other user:', data.message);
@@ -187,13 +187,13 @@ export default function SimpleChat() {
           setAiTimeoutId(null);
         }
       } else {
-        // Keep polling every 2 seconds
+        // Reduced polling to save credits - every 8 seconds
         if (!pollRef.current) {
           pollRef.current = setInterval(() => {
             if (username && !isAIChat) {
               findMatchMutation.mutate(username);
             }
-          }, 2000);
+          }, 8000);
         }
       }
     },
