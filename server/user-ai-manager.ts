@@ -12,17 +12,17 @@ export class UserAIManager {
   private userBots: Map<string, UserAIBots> = new Map();
   private recentFallbacks = new Map<string, string[]>();
   
-  // Clean up inactive users (older than 30 minutes)
-  private cleanupInterval = setInterval(() => {
-    const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
-    const entries = Array.from(this.userBots.entries());
-    for (const [username, bots] of entries) {
-      if (bots.lastActivity < thirtyMinutesAgo) {
-        this.userBots.delete(username);
-        console.log(`Cleaned up AI bots for inactive user: ${username}`);
-      }
-    }
-  }, 5 * 60 * 1000); // Run every 5 minutes
+  // DISABLED CLEANUP TO SAVE CREDITS
+  // private cleanupInterval = setInterval(() => {
+  //   const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
+  //   const entries = Array.from(this.userBots.entries());
+  //   for (const [username, bots] of entries) {
+  //     if (bots.lastActivity < thirtyMinutesAgo) {
+  //       this.userBots.delete(username);
+  //       // console.log(`Cleaned up AI bots for inactive user: ${username}`);
+  //     }
+  //   }
+  // }, 5 * 60 * 1000); // DISABLED TO SAVE CREDITS
   
   private getUserBots(username: string): UserAIBots {
     let userBots = this.userBots.get(username);
@@ -36,7 +36,7 @@ export class UserAIManager {
         lastActivity: Date.now()
       };
       this.userBots.set(username, userBots);
-      console.log(`Created fresh AI bots for user: ${username}`);
+      // console.log(`Created fresh AI bots for user: ${username}`);
     } else {
       // Update last activity
       userBots.lastActivity = Date.now();

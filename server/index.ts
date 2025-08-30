@@ -79,9 +79,9 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   
-  // Log port configuration for debugging
-  console.log('Environment PORT:', process.env.PORT);
-  console.log('Using port:', port);
+  // Minimal logging to save resources
+  // console.log('Environment PORT:', process.env.PORT);
+  // console.log('Using port:', port);
   server.listen({
     port,
     host: "0.0.0.0",

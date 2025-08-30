@@ -76,27 +76,25 @@ export default function Chat() {
       clearInterval(pollIntervalRef.current);
     }
 
-    pollIntervalRef.current = setInterval(async () => {
-      try {
-        console.log('Polling for match...');
-        const res = await apiRequest('POST', '/api/random-chat', { username });
-        const response = await res.json() as any;
-        console.log('Poll response:', response);
-        
-        if (response.matched) {
-          console.log('Match found!', response);
-          setCurrentRoom(response.room);
-          setMatchedUser(response.matchedUser);
-          setIsLookingForMatch(false);
-          if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = null;
-          }
-        }
-      } catch (error) {
-        console.error('Polling error:', error);
-      }
-    }, 3000); // Poll every 3 seconds
+    // DISABLED ALL POLLING TO SAVE CREDITS
+    // pollIntervalRef.current = setInterval(async () => {
+    //   try {
+    //     const res = await apiRequest('POST', '/api/random-chat', { username });
+    //     const response = await res.json() as any;
+    //     
+    //     if (response.matched) {
+    //       setCurrentRoom(response.room);
+    //       setMatchedUser(response.matchedUser);
+    //       setIsLookingForMatch(false);
+    //       if (pollIntervalRef.current) {
+    //         clearInterval(pollIntervalRef.current);
+    //         pollIntervalRef.current = null;
+    //       }
+    //     }
+    //   } catch (error) {
+    //     console.error('Polling error:', error);
+    //   }
+    // }, 3000); // DISABLED TO SAVE CREDITS
 
     // Stop polling after 60 seconds
     setTimeout(() => {

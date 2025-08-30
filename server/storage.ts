@@ -147,12 +147,12 @@ export class MemStorage implements IStorage {
   }
 
   async findRandomMatch(currentUser: string): Promise<{ matchedUser: string; room: ChatRoom } | null> {
-    console.log(`Finding match for ${currentUser}, waiting list:`, Array.from(this.waitingForMatch));
+    // console.log(`Finding match for ${currentUser}, waiting list:`, Array.from(this.waitingForMatch));
     
     // Check if this user already has a pending match
     const existingMatch = this.pendingMatches.get(currentUser);
     if (existingMatch) {
-      console.log(`Returning existing match for ${currentUser}:`, existingMatch.matchedUser);
+      // console.log(`Returning existing match for ${currentUser}:`, existingMatch.matchedUser);
       this.pendingMatches.delete(currentUser); // Clear the pending match
       return existingMatch;
     }
@@ -165,7 +165,7 @@ export class MemStorage implements IStorage {
       const randomIndex = Math.floor(Math.random() * availableUsers.length);
       const matchedUser = availableUsers[randomIndex];
       
-      console.log(`Match found: ${currentUser} <-> ${matchedUser}`);
+      // console.log(`Match found: ${currentUser} <-> ${matchedUser}`);
       
       // Remove both users from waiting list
       this.waitingForMatch.delete(currentUser);
@@ -182,7 +182,7 @@ export class MemStorage implements IStorage {
     
     // Add current user to waiting list only if no match found
     this.waitingForMatch.add(currentUser);
-    console.log(`No match for ${currentUser}, added to waiting list`);
+    // console.log(`No match for ${currentUser}, added to waiting list`);
     
     return null; // No match found, user stays in waiting list
   }

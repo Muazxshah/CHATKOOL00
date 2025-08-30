@@ -187,14 +187,14 @@ export default function SimpleChat() {
           setAiTimeoutId(null);
         }
       } else {
-        // Reduced polling to save credits - every 8 seconds
-        if (!pollRef.current) {
-          pollRef.current = setInterval(() => {
-            if (username && !isAIChat) {
-              findMatchMutation.mutate(username);
-            }
-          }, 8000);
-        }
+        // DISABLED POLLING TO SAVE CREDITS - manual refresh only
+        // if (!pollRef.current) {
+        //   pollRef.current = setInterval(() => {
+        //     if (username && !isAIChat) {
+        //       findMatchMutation.mutate(username);
+        //     }
+        //   }, 8000);
+        // }
       }
     },
     onError: () => {
